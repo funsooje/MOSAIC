@@ -56,6 +56,20 @@ warm-OS. State it that way when citing them.
   timer-based version killed the process during interpreter startup, before any
   write, and measured nothing.
 
+## What is deliberately not here
+
+Two inputs are cohort-derived and are not distributed:
+
+- `results/case_study_points.csv` — real participant coordinates, timestamped.
+- `results/b4_sample.csv` — the 100 m grid cells the fidelity sample drew from,
+  which are places participants visited.
+
+Both regenerate from the source database with the scripts above, and the
+manifests record their SHA-256 so a rebuild can be verified. Everything else
+here is aggregate, synthetic, or derived from public datasets. The per-participant
+weekly summary (`results/case_study_summary.csv`) carries pseudonymous registry
+ids and exposure values, but no coordinates.
+
 ## Running them
 
 Requires the `gee` environment (see `environment.yml`), a populated store

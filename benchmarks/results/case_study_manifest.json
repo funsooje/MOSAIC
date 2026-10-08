@@ -77,5 +77,7 @@
     }
   },
   "summary_rows": 494,
-  "summary_sha256": "4944b48a5f78ff032e6e8e4eb3d501c546480e0d9ac00c9aeb4c83a5ff7f27de"
+  "summary_sha256": "4944b48a5f78ff032e6e8e4eb3d501c546480e0d9ac00c9aeb4c83a5ff7f27de",
+  "points_file_distributed": false,
+  "points_file_note": "Real participant coordinates, withheld. Regenerate with `case_study.py record` against the GTL source database; the recorded SHA-256 verifies the rebuild."
 }

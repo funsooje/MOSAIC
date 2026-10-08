@@ -216,6 +216,13 @@ def record(out_dir: Path) -> None:
         "points_per_week_per_participant": POINTS_PER_WEEK,
         "min_weeks_required": MIN_WEEKS,
         "points_file": "case_study_points.csv",
+        # The input trace is real participant coordinates and is NOT distributed
+        # with the repository. Its hash is recorded so anyone with authorised
+        # access to the source database can verify they rebuilt the same input.
+        "points_file_distributed": False,
+        "points_file_note": ("Real participant coordinates, withheld. Regenerate "
+                             "with `case_study.py record` against the GTL source "
+                             "database; the recorded SHA-256 verifies the rebuild."),
         "points_sha256": hashlib.sha256(
             (out_dir / "case_study_points.csv").read_bytes()).hexdigest(),
         "inspection": checks,

@@ -30,3 +30,9 @@ viewer/saved_view.json
 archive/
 examples/
 
+# Cohort-derived inputs: real participant coordinates and the grid cells they
+# visited. Kept out of the public repo; the scripts regenerate them from the
+# source database, which is not public either.
+benchmarks/results/case_study_points.csv
+benchmarks/results/b4_sample.csv
+benchmarks/results/b3_points_*.csv
