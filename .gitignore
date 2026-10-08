@@ -37,3 +37,6 @@ benchmarks/results/case_study_points.csv
 benchmarks/results/case_study_summary.csv
 benchmarks/results/b4_sample.csv
 benchmarks/results/b3_points_*.csv
+
+# Leftover store from the end-to-end pipeline test
+tests/tmp/
