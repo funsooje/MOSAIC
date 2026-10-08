@@ -1,6 +1,9 @@
 """SQLAlchemy table definitions and per-source observation table helpers."""
 
-from sqlalchemy import Column, ForeignKey, Integer, MetaData, Table, Text, UniqueConstraint, text
+from sqlalchemy import (
+    Column, ForeignKey, Integer, MetaData, Table, Text, UniqueConstraint,
+    inspect as sa_inspect, text,
+)
 from sqlalchemy.engine import Engine
 
 metadata = MetaData()
@@ -72,12 +75,24 @@ jobs = Table(
     Column("expected_path", Text),
     Column("status", Text, nullable=False, default="PENDING"),
     Column("submitted_at", Text),
+    Column("started_at", Text),      # first poll that saw the task RUNNING
     Column("completed_at", Text),
+    Column("error", Text),           # GEE error message when status is FAILED
     Column("ingested_at", Text),
     Column("row_count", Integer),
 )
 
 _REGISTRY_TABLES = [sources, variables, cells, hiergp_cells, spatiotemporal_units, jobs]
+
+
+def migrate_jobs_columns(engine: Engine) -> None:
+    """Add jobs.started_at / jobs.error to a store created before they existed."""
+    existing = {c["name"] for c in sa_inspect(engine).get_columns("jobs")}
+    for column, ddl_type in (("started_at", "TEXT"), ("error", "TEXT")):
+        if column not in existing:
+            with engine.begin() as conn:
+                conn.execute(text(f"ALTER TABLE jobs ADD COLUMN {column} {ddl_type}"))
+            print(f"  jobs.{column} added")
 
 
 def initialize_db(engine: Engine) -> None:
@@ -86,6 +101,7 @@ def initialize_db(engine: Engine) -> None:
         _initialize_postgresql(engine)
     else:
         metadata.create_all(engine, tables=_REGISTRY_TABLES)
+    migrate_jobs_columns(engine)
     print(f"Initialised schema on {engine.url.render_as_string(hide_password=True)}")
 
 

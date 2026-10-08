@@ -24,6 +24,7 @@ from sqlalchemy.engine import Engine
 from geometrics.store.query import _snap_timestamp
 from geometrics.store.schema import (
     cells,
+    jobs as jobs_table,
     ensure_source_obs_table,
     ensure_spatiotemporal_year_partitions,
     hiergp_cells,
@@ -48,8 +49,30 @@ def ingest_file(engine: Engine, path: str | Path, backend_name: str = "hiergp") 
     return total
 
 
+def mark_job_ingested(engine: Engine, gdrive_folder: str, file_prefix: str,
+                      rows: int) -> None:
+    """
+    Flip the matching job to INGESTED.
+
+    Jobs are matched on (gdrive_folder, file_prefix), which is what
+    record_submitted stored, so a file ingested from Drive closes out its job
+    instead of leaving it COMPLETED forever.
+    """
+    from datetime import datetime, timezone
+
+    with engine.begin() as conn:
+        conn.execute(
+            jobs_table.update()
+            .where(jobs_table.c.gdrive_folder == gdrive_folder)
+            .where(jobs_table.c.file_prefix == file_prefix)
+            .values(status="INGESTED",
+                    ingested_at=datetime.now(timezone.utc).isoformat())
+        )
+
+
 def ingest_folder(
-    engine: Engine, folder_path: str | Path, backend_name: str = "hiergp"
+    engine: Engine, folder_path: str | Path, backend_name: str = "hiergp",
+    gdrive_folder: str | None = None,
 ) -> dict:
     """
     Ingest all GEE-exported CSVs found in folder_path.
@@ -73,6 +96,8 @@ def ingest_folder(
         for source_name, group in data.groupby("source"):
             inserted += _ingest_group(engine, group, str(source_name), backend_name)
         results[path.name] = inserted
+        if gdrive_folder:
+            mark_job_ingested(engine, gdrive_folder, path.stem, inserted)
 
     return results
 
@@ -144,13 +169,21 @@ def _build_rows(group: pd.DataFrame, var_cols: list[str]) -> list[dict]:
 
 
 def _insert_wide(
-    engine: Engine, group: pd.DataFrame, source_name: str, var_cols: list[str]
+    engine: Engine, group: pd.DataFrame, source_name: str, var_cols: list[str],
+    upsert: bool = False,
 ) -> int:
+    """Insert observation rows. upsert=True updates only the specified var_cols on conflict."""
     table = source_table_name(source_name)
     cols = ["unit_pk"] + var_cols
     col_sql = ", ".join(cols)
     param_sql = ", ".join(f":{c}" for c in cols)
-    if engine.dialect.name == "postgresql":
+    if upsert:
+        update_sql = ", ".join(f"{c} = EXCLUDED.{c}" for c in var_cols)
+        stmt = text(
+            f"INSERT INTO {table} ({col_sql}) VALUES ({param_sql})"
+            f" ON CONFLICT (unit_pk) DO UPDATE SET {update_sql}"
+        )
+    elif engine.dialect.name == "postgresql":
         stmt = text(
             f"INSERT INTO {table} ({col_sql}) VALUES ({param_sql})"
             " ON CONFLICT (unit_pk) DO NOTHING"
@@ -200,7 +233,7 @@ def _ensure_spatiotemporal_units(
             rows = conn.execute(text("""
                 SELECT id, cell_pk, timestamp
                 FROM spatiotemporal_units
-                WHERE cell_pk = ANY(:pks) AND timestamp = ANY(:tss)
+                WHERE cell_pk = ANY(:pks) AND timestamp = ANY(CAST(:tss AS timestamp[]))
             """), {"pks": cell_pks, "tss": timestamps}).fetchall()
         else:
             pks_sql = ",".join(str(p) for p in cell_pks)
@@ -210,7 +243,17 @@ def _ensure_spatiotemporal_units(
                 FROM spatiotemporal_units
                 WHERE cell_pk IN ({pks_sql}) AND timestamp IN ({tss_sql})
             """)).fetchall()
-    return {(r.cell_pk, str(r.timestamp)): r.id for r in rows}
+    return {(r.cell_pk, _dt_to_str(r.timestamp)): r.id for r in rows}
+
+
+def _dt_to_str(value) -> str:
+    """Normalise a timestamp returned from PostgreSQL (datetime) or SQLite (str) to
+    the same string format that _snap_timestamp produces."""
+    if not hasattr(value, "strftime"):
+        return str(value)
+    if value.hour == 0 and value.minute == 0 and value.second == 0:
+        return value.strftime("%Y-%m-%d")
+    return value.strftime("%Y-%m-%d %H:%M:%S")
 
 
 # ---------------------------------------------------------------------------

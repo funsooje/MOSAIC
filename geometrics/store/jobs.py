@@ -45,7 +45,7 @@ def _now() -> str:
 
 def record_submitted(engine: Engine, task_id: str, source_id: int, level: int,
                      date_start: str, date_end: str, gdrive_folder: str,
-                     file_prefix: str, gdrive_base: str, row_count: int) -> int:
+                     file_prefix: str, gdrive_base: str, row_count: int | None = None) -> int:
     expected_path = f"{gdrive_base.rstrip('/')}/{gdrive_folder}/{file_prefix}.csv"
     with engine.begin() as conn:
         result = conn.execute(
@@ -77,7 +77,7 @@ def check_status(engine: Engine) -> dict:
 
     with engine.connect() as conn:
         rows = conn.execute(
-            select(jobs.c.job_id, jobs.c.task_id, jobs.c.status)
+            select(jobs.c.job_id, jobs.c.task_id, jobs.c.status, jobs.c.started_at)
             .where(jobs.c.status.in_(_ACTIVE_STATUSES))
         ).fetchall()
 
@@ -87,12 +87,15 @@ def check_status(engine: Engine) -> dict:
 
     # Poll GEE in batches
     gee_status: dict[str, str] = {}
+    gee_errors: dict[str, str] = {}
     task_ids = [r.task_id for r in rows]
     for i in range(0, len(task_ids), _GEE_POLL_BATCH):
         batch = task_ids[i : i + _GEE_POLL_BATCH]
         results = ee.data.getTaskStatus(batch)
         for r in results:
             gee_status[r["id"]] = r.get("state", "UNKNOWN")
+            if r.get("error_message"):
+                gee_errors[r["id"]] = str(r["error_message"])[:2000]
 
     summary: dict[str, int] = {}
     with engine.begin() as conn:
@@ -101,8 +104,15 @@ def check_status(engine: Engine) -> dict:
             new_status = _resolve_status(row.status, gee_state)
             if new_status != row.status:
                 extra: dict = {}
+                if new_status == "RUNNING" and not row.started_at:
+                    extra["started_at"] = _now()
                 if new_status == "COMPLETED":
                     extra["completed_at"] = _now()
+                    # A task seen only once, already finished, still has a start.
+                    if not row.started_at:
+                        extra["started_at"] = _now()
+                if new_status in ("FAILED", "CANCELLED") and row.task_id in gee_errors:
+                    extra["error"] = gee_errors[row.task_id]
                 conn.execute(
                     update(jobs)
                     .where(jobs.c.job_id == row.job_id)
