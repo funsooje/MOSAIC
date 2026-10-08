@@ -1,0 +1,49 @@
+{"stage": "stage1_cells", "started_at": "2026-09-21T16:25:28.644463+00:00", "year_start": 2010, "year_end": 2018, "seconds": 126.967}
+{"stage": "stage2_units", "started_at": "2026-09-21T16:27:37.441156+00:00", "year_start": 2010, "year_end": 2018, "seconds": 224.753}
+{"stage": "stage3_observations", "started_at": "2026-09-21T16:31:27.710224+00:00", "source": "MODIS_NDVI", "year_start": 2010, "year_end": 2018, "seconds": 175.592}
+{"stage": "stage3_observations", "started_at": "2026-09-21T16:34:23.317819+00:00", "source": "Landsat_NDVI", "year_start": 2010, "year_end": 2018, "seconds": 122.036}
+{"stage": "stage3_observations", "started_at": "2026-09-21T16:36:25.452398+00:00", "source": "MODIS_Treecover", "year_start": 2010, "year_end": 2018, "seconds": 107.683}
+{"stage": "stage3_observations", "started_at": "2026-09-21T16:38:13.134664+00:00", "source": "NLCD", "year_start": 2010, "year_end": 2018, "seconds": 113.265}
+{"stage": "stage3_observations", "started_at": "2026-09-21T16:40:06.405453+00:00", "source": "YALE_UHI", "year_start": 2010, "year_end": 2018, "seconds": 113.056}
+{"stage": "stage3_observations", "started_at": "2026-09-21T16:41:59.466738+00:00", "source": "JRC_Water", "year_start": 2010, "year_end": 2018, "seconds": 106.323}
+{"stage": "stage_local", "started_at": "2026-09-21T16:43:49.905067+00:00", "year_start": 2010, "year_end": 2018, "seconds": 820.628}
+{"stage": "era5_cells", "started_at": "2026-09-21T16:57:35.198779+00:00", "year": 2010, "cells_inserted": 524, "seconds": 10.299}
+{"stage": "era5_units", "started_at": "2026-09-21T16:57:45.498194+00:00", "year": 2010, "units_inserted": 14386, "seconds": 11.307}
+{"stage": "era5_obs", "started_at": "2026-09-21T16:57:56.806066+00:00", "year": 2010, "obs_inserted": 10027, "seconds": 17.447}
+{"stage": "era5_cells", "started_at": "2026-09-21T16:58:14.305561+00:00", "year": 2011, "cells_inserted": 2260, "seconds": 3.728}
+{"stage": "era5_units", "started_at": "2026-09-21T16:58:18.034916+00:00", "year": 2011, "units_inserted": 67709, "seconds": 14.123}
+{"stage": "era5_obs", "started_at": "2026-09-21T16:58:32.160840+00:00", "year": 2011, "obs_inserted": 62009, "seconds": 62.541}
+{"stage": "era5_cells", "started_at": "2026-09-21T16:59:34.725444+00:00", "year": 2012, "cells_inserted": 4085, "seconds": 13.013}
+{"stage": "era5_units", "started_at": "2026-09-21T16:59:47.739410+00:00", "year": 2012, "units_inserted": 144217, "seconds": 14.076}
+{"stage": "era5_obs", "started_at": "2026-09-21T17:00:01.816036+00:00", "year": 2012, "obs_inserted": 141819, "seconds": 182.214}
+{"stage": "era5_cells", "started_at": "2026-09-21T17:03:04.157614+00:00", "year": 2013, "cells_inserted": 33459, "seconds": 64.262}
+{"stage": "era5_units", "started_at": "2026-09-21T17:04:08.423624+00:00", "year": 2013, "units_inserted": 894403, "seconds": 137.022}
+{"stage": "era5_obs", "started_at": "2026-09-21T17:06:25.456504+00:00", "year": 2013, "obs_inserted": 861441, "seconds": 403.876}
+{"stage": "era5_cells", "started_at": "2026-09-21T17:13:09.487784+00:00", "year": 2014, "cells_inserted": 29308, "seconds": 84.575}
+{"stage": "era5_units", "started_at": "2026-09-21T17:14:34.064987+00:00", "year": 2014, "units_inserted": 1916813, "seconds": 175.199}
+{"stage": "era5_obs", "started_at": "2026-09-21T17:17:29.274231+00:00", "year": 2014, "obs_inserted": 1844478, "seconds": 623.48}
+{"stage": "era5_cells", "started_at": "2026-09-21T17:27:53.097500+00:00", "year": 2015, "cells_inserted": 25345, "seconds": 91.731}
+{"stage": "era5_units", "started_at": "2026-09-21T17:29:24.835000+00:00", "year": 2015, "units_inserted": 2183101, "seconds": 178.314}
+{"stage": "era5_obs", "started_at": "2026-09-21T17:32:23.158159+00:00", "year": 2015, "obs_inserted": 2060320, "seconds": 579.261}
+{"stage": "era5_cells", "started_at": "2026-09-21T17:42:02.595446+00:00", "year": 2016, "cells_inserted": 29746, "seconds": 82.915}
+{"stage": "era5_units", "started_at": "2026-09-21T17:43:25.516355+00:00", "year": 2016, "units_inserted": 2528441, "seconds": 112.686}
+{"stage": "era5_obs", "started_at": "2026-09-21T17:45:18.259123+00:00", "year": 2016, "obs_inserted": 2394098, "seconds": 339.148}
+{"stage": "era5_cells", "started_at": "2026-09-21T17:50:57.562198+00:00", "year": 2017, "cells_inserted": 29361, "seconds": 35.856}
+{"stage": "era5_units", "started_at": "2026-09-21T17:51:33.422918+00:00", "year": 2017, "units_inserted": 3209206, "seconds": 76.022}
+{"stage": "era5_obs", "started_at": "2026-09-21T17:52:49.450001+00:00", "year": 2017, "obs_inserted": 3055008, "seconds": 189.484}
+{"stage": "era5_cells", "started_at": "2026-09-21T17:55:59.191892+00:00", "year": 2018, "cells_inserted": 19914, "seconds": 34.839}
+{"stage": "era5_units", "started_at": "2026-09-21T17:56:34.040341+00:00", "year": 2018, "units_inserted": 3430145, "seconds": 83.09}
+{"stage": "era5_obs", "started_at": "2026-09-21T17:57:57.135634+00:00", "year": 2018, "obs_inserted": 3262732, "seconds": 150.358}
+{"stage": "era5_cells", "started_at": "2026-09-21T18:00:27.617450+00:00", "year": 2019, "cells_inserted": 12674, "seconds": 21.537}
+{"stage": "era5_units", "started_at": "2026-09-21T18:00:49.158742+00:00", "year": 2019, "units_inserted": 3490780, "seconds": 70.892}
+{"stage": "era5_obs", "started_at": "2026-09-21T18:02:00.063078+00:00", "year": 2019, "obs_inserted": 3340622, "seconds": 258.65}
+{"stage": "era5_cells", "started_at": "2026-09-21T18:06:18.804367+00:00", "year": 2020, "cells_inserted": 3345, "seconds": 26.695}
+{"stage": "era5_units", "started_at": "2026-09-21T18:06:45.502196+00:00", "year": 2020, "units_inserted": 3077190, "seconds": 123.517}
+{"stage": "era5_obs", "started_at": "2026-09-21T18:08:49.026961+00:00", "year": 2020, "obs_inserted": 2948980, "seconds": 307.565}
+{"stage": "era5_cells", "started_at": "2026-09-21T18:13:56.700938+00:00", "year": 2021, "cells_inserted": 4695, "seconds": 42.069}
+{"stage": "era5_units", "started_at": "2026-09-21T18:14:38.771067+00:00", "year": 2021, "units_inserted": 3411484, "seconds": 95.231}
+{"stage": "era5_obs", "started_at": "2026-09-21T18:16:14.003708+00:00", "year": 2021, "obs_inserted": 3280316, "seconds": 392.521}
+{"stage": "era5_cells", "started_at": "2026-09-21T18:22:46.623343+00:00", "year": 2022, "cells_inserted": 692, "seconds": 31.685}
+{"stage": "era5_units", "started_at": "2026-09-21T18:23:18.315439+00:00", "year": 2022, "units_inserted": 1722552, "seconds": 51.891}
+{"stage": "era5_obs", "started_at": "2026-09-21T18:24:10.211293+00:00", "year": 2022, "obs_inserted": 1659764, "seconds": 269.894}
+{"stage": "stage_era5", "started_at": "2026-09-21T16:57:34.185292+00:00", "year_start": 2010, "year_end": 2022, "seconds": 5467.266}
