@@ -22,14 +22,13 @@ from typing import Any
 
 import numpy as np
 import pandas as pd
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy import inspect as sa_inspect, text
 
 from geometrics import GeoMetrics
-from geometrics.backends.hiergp import HierGPBackend
-from geometrics.backends.hiergp import _to_internal  # noqa: F401
+from geometrics.backends import get_backend
 from geometrics.catalog import CATALOG
 
 logging.basicConfig(level=logging.INFO)
@@ -40,7 +39,7 @@ STATIC_DIR = Path(__file__).parent / "static"
 app = FastAPI(title="GeoMetrics Viewer", docs_url="/api/docs")
 
 gm = GeoMetrics()
-_backend = HierGPBackend()
+_backend = get_backend(gm.config.backend)
 
 _coord_cache: dict[tuple[str, str], dict] = {}
 _sources_cache: list | None = None
@@ -56,6 +55,30 @@ def _prefetch_sources() -> None:
 # ---------------------------------------------------------------------------
 # API routes — must be registered BEFORE the static file catch-all
 # ---------------------------------------------------------------------------
+
+_VIEW_FILE = Path(__file__).parent / "saved_view.json"
+_DEFAULT_VIEW: dict[str, Any] = {"center": [-120.5, 47.5], "zoom": 6}
+
+
+@app.get("/api/view")
+def get_view() -> JSONResponse:
+    """Return saved map center/zoom, or the default if none saved yet."""
+    if _VIEW_FILE.exists():
+        return JSONResponse(json.loads(_VIEW_FILE.read_text()))
+    return JSONResponse(_DEFAULT_VIEW)
+
+
+@app.post("/api/view")
+async def save_view(request: Request) -> JSONResponse:
+    """Persist current map center and zoom to saved_view.json."""
+    data = await request.json()
+    center = data.get("center")
+    zoom = data.get("zoom")
+    if not isinstance(center, list) or len(center) != 2 or not isinstance(zoom, (int, float)):
+        raise HTTPException(400, "Expected {center: [lng, lat], zoom: number}")
+    _VIEW_FILE.write_text(json.dumps({"center": center, "zoom": zoom}))
+    return JSONResponse({"ok": True})
+
 
 @app.get("/api/sources")
 def get_sources() -> JSONResponse:
@@ -219,9 +242,44 @@ def _query_sources() -> list:
 
 def _load_cell_coords(obs_table: str, timestamp: str) -> dict:
     """
-    Query all cells with data for (obs_table, timestamp) and batch-convert
-    x,y coordinates to lat/lon centroids.  Returns {"lats", "lons", "unit_pks"}.
+    All cells with data for (obs_table, timestamp), as centroid lat/lon.
+
+    HierGP has a vectorised path: x/y live in hiergp_cells and the grid library
+    converts a whole frame at once. Any other backend goes cell_id by cell_id
+    through the GridBackend interface, which is slower but backend-agnostic.
     """
+    if gm.config.backend == "hiergp":
+        return _load_cell_coords_hiergp(obs_table, timestamp)
+    return _load_cell_coords_generic(obs_table, timestamp)
+
+
+def _load_cell_coords_generic(obs_table: str, timestamp: str) -> dict:
+    """Centroids via backend.cell_to_centroid — works for any backend."""
+    with gm.engine.connect() as conn:
+        rows = conn.execute(text(f"""
+            SELECT o.unit_pk, c.cell_id
+            FROM {obs_table} o
+            JOIN spatiotemporal_units u ON u.id = o.unit_pk
+            JOIN cells c ON c.id = u.cell_pk
+            WHERE u.timestamp = :ts
+        """), {"ts": timestamp}).fetchall()
+
+    if not rows:
+        return {"lats": [], "lons": [], "unit_pks": []}
+
+    lats, lons, unit_pks = [], [], []
+    for unit_pk, cell_id in rows:
+        lat, lon = _backend.cell_to_centroid(cell_id)
+        lats.append(lat)
+        lons.append(lon)
+        unit_pks.append(unit_pk)
+    return {"lats": lats, "lons": lons, "unit_pks": unit_pks}
+
+
+def _load_cell_coords_hiergp(obs_table: str, timestamp: str) -> dict:
+    """Vectorised HierGP path: batch-convert x/y from hiergp_cells."""
+    from geometrics.backends.hiergp import _to_internal
+
     with gm.engine.connect() as conn:
         rows = conn.execute(text(f"""
             SELECT o.unit_pk, h.x, h.y, c.level
@@ -236,18 +294,17 @@ def _load_cell_coords(obs_table: str, timestamp: str) -> dict:
         return {"lats": [], "lons": [], "unit_pks": []}
 
     data_df = pd.DataFrame(rows, columns=["unit_pk", "x", "y", "level"])
-    actual_level = int(data_df["level"].iloc[0])
-    internal_level = _to_internal(actual_level)
+    lats, lons, unit_pks = [], [], []
+    # A source can span levels (ERA5 sits at 8 while the rest sit at 13), and
+    # generateCenters is per-level, so convert one level at a time.
+    for level, group in data_df.groupby("level"):
+        internal_level = _to_internal(int(level))
+        centers = _backend._grider.generateCenters(group[["x", "y"]], internal_level)
+        lats.extend(centers[f"l{internal_level}_lat"].tolist())
+        lons.extend(centers[f"l{internal_level}_lon"].tolist())
+        unit_pks.extend(group["unit_pk"].tolist())
 
-    centers = _backend._grider.generateCenters(data_df[["x", "y"]], internal_level)
-    lat_col = f"l{internal_level}_lat"
-    lon_col = f"l{internal_level}_lon"
-
-    return {
-        "lats": centers[lat_col].tolist(),
-        "lons": centers[lon_col].tolist(),
-        "unit_pks": data_df["unit_pk"].tolist(),
-    }
+    return {"lats": lats, "lons": lons, "unit_pks": unit_pks}
 
 
 def _load_values(obs_table: str, variable: str, unit_pks: list[int]) -> list:

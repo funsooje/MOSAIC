@@ -55,6 +55,18 @@ def ensure_source(
     return source_id, True
 
 
+def extracted_level(items: list[dict], fallback: int) -> int:
+    """
+    The grid level the batch is actually being extracted at.
+
+    resolve() picks the level from the database's sources.native_level, which
+    can differ from the module constant (migrated data sits at its own level),
+    so record what was extracted rather than what the catalog assumes.
+    """
+    levels = {item["requested_level"] for item in items if "requested_level" in item}
+    return levels.pop() if len(levels) == 1 else fallback
+
+
 def items_to_ee_feature_collection(backend: GridBackend, items: list[dict]):
     """
     Build a GEE FeatureCollection from resolved missing items.

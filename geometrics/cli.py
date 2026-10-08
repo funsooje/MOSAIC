@@ -97,10 +97,13 @@ def cmd_jobs(args):
 
 
 def cmd_list_sources():
-    from geometrics.backends.hiergp import HierGPBackend
+    from geometrics.backends import get_backend
+    from geometrics.backends.levels import native_level_for_backend
     from geometrics.catalog import CATALOG
+    from geometrics.config import load_config
 
-    backend = HierGPBackend()
+    config = load_config()
+    backend = get_backend(config.backend)
     header = (
         f"{'SOURCE':<20}  {'DATA RES':>8}  {'COLLECT RES':>12}"
         f"  {'SRC TEMPORAL':<14}  {'COLLECT TEMPORAL'}"
@@ -108,18 +111,24 @@ def cmd_list_sources():
     print(header)
     print("-" * len(header))
     for spec in CATALOG.values():
-        level_km = backend.level_to_approx_resolution_km(spec["native_level"])
-        level_res = f"L{spec['native_level']} (~{level_km * 1000:.0f}m)"
+        # Local sources carry no GEE pixel size or upstream cadence.
+        level = native_level_for_backend(spec["native_level"], config.backend)
+        level_km = backend.level_to_approx_resolution_km(level)
+        level_res = f"L{level} (~{level_km * 1000:.0f}m)"
+        pixel = spec.get("pixel_resolution_m")
+        pixel_txt = f"{pixel:>6}m" if pixel else "     --"
         print(
-            f"{spec['name']:<20}  {spec['pixel_resolution_m']:>6}m  "
-            f"{level_res:>12}  {spec['source_temporal_granularity']:<14}  "
+            f"{spec['name']:<20}  {pixel_txt}  "
+            f"{level_res:>12}  {spec.get('source_temporal_granularity') or '--':<14}  "
             f"{spec['temporal_granularity']}"
         )
 
 
 def cmd_list_variables(args):
-    from geometrics.backends.hiergp import HierGPBackend
+    from geometrics.backends import get_backend
+    from geometrics.backends.levels import native_level_for_backend
     from geometrics.catalog import CATALOG, get_source
+    from geometrics.config import load_config
 
     if not args:
         print("Usage: list-variables SOURCE")
@@ -127,14 +136,16 @@ def cmd_list_variables(args):
         return
 
     spec = get_source(args[0])
-    backend = HierGPBackend()
-    level_km = backend.level_to_approx_resolution_km(spec["native_level"])
+    config = load_config()
+    backend = get_backend(config.backend)
+    level = native_level_for_backend(spec["native_level"], config.backend)
+    level_km = backend.level_to_approx_resolution_km(level)
 
     print(f"{spec['name']} — {spec['description']}")
-    print(f"  GEE collection : {spec['gee_collection']}")
-    print(f"  Data resolution: {spec['pixel_resolution_m']} m")
-    print(f"  Collect level  : L{spec['native_level']} (~{level_km * 1000:.0f} m)")
-    print(f"  Source temporal: {spec['source_temporal_granularity']}")
+    print(f"  GEE collection : {spec.get('gee_collection', '-- (local source)')}")
+    print(f"  Data resolution: {spec.get('pixel_resolution_m', '--')} m")
+    print(f"  Collect level  : L{level} (~{level_km * 1000:.0f} m)")
+    print(f"  Source temporal: {spec.get('source_temporal_granularity') or '--'}")
     print(f"  Stored temporal: {spec['temporal_granularity']}")
     print()
     print(f"  {'VARIABLE':<25}  {'UNIT':<12}  DESCRIPTION")

@@ -10,6 +10,9 @@ class GeoMetricsConfig:
     db_url: str = "sqlite:///geometrics.db"
     gdrive_base: str = ""
     backend: str = "hiergp"
+    # Cloud project the Earth Engine calls are billed to. Without it ee.Initialize()
+    # falls back to the gcloud application-default project, which is usually wrong.
+    gee_project: str = ""
 
 
 def load_config(path: str | Path | None = None) -> GeoMetricsConfig:

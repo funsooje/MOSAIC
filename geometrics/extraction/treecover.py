@@ -16,7 +16,7 @@ from sqlalchemy.engine import Engine
 
 from geometrics.backends.base import GridBackend
 from geometrics.config import GeoMetricsConfig
-from geometrics.extraction.base import ensure_source, items_to_ee_feature_collection, submit_export
+from geometrics.extraction.base import extracted_level, ensure_source, items_to_ee_feature_collection, submit_export
 from geometrics.store.jobs import record_submitted
 
 _SOURCE_NAME = "MODIS_Treecover"
@@ -114,7 +114,7 @@ def submit_treecover(
         engine=engine,
         task_id=task_id,
         source_id=source_id,
-        level=_NATIVE_LEVEL,
+        level=extracted_level(items, _NATIVE_LEVEL),
         date_start=date_start,
         date_end=date_end,
         gdrive_folder=gdrive_folder,

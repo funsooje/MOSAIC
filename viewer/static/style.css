@@ -46,6 +46,21 @@ html, body {
   flex-direction: column;
   gap: 5px;
 }
+.label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.flip-label {
+  font-size: 11px;
+  color: #888;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.flip-label input { cursor: pointer; }
+
 .control-group label {
   font-size: 11px;
   text-transform: uppercase;
@@ -110,27 +125,38 @@ select:disabled { opacity: 0.4; cursor: default; }
   gap: 6px;
 }
 
-#load-btn, #focus-btn {
+#load-btn, #focus-btn, #save-view-btn, #load-saved-view-btn, #screenshot-btn {
   width: 100%;
   padding: 8px;
   border-radius: 6px;
-  border: none;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   transition: opacity 0.15s;
+  border: 1px solid #4eaaff;
+  background: transparent;
+  color: #4eaaff;
 }
 #load-btn {
   background: #4eaaff;
   color: #000;
-}
-#focus-btn {
-  background: transparent;
-  border: 1px solid #4eaaff;
-  color: #4eaaff;
+  border: none;
 }
 #load-btn:disabled, #focus-btn:disabled { opacity: 0.3; cursor: default; }
-#load-btn:not(:disabled):hover, #focus-btn:not(:disabled):hover { opacity: 0.75; }
+#load-btn:not(:disabled):hover, #focus-btn:not(:disabled):hover,
+#save-view-btn:hover, #load-saved-view-btn:hover, #screenshot-btn:hover { opacity: 0.75; }
+
+#view-btn-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+#view-btn-group label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #666;
+}
 
 #status-box {
   font-size: 11px;

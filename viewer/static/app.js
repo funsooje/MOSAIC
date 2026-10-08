@@ -9,6 +9,7 @@ let selectedVariable  = null;
 let selectedTimestamp = null;
 let layerMeta         = null;
 let selectedColormap  = 'viridis';
+let colorFlipped      = false;
 let currentOpacity    = 0.75;
 
 // ── Colormaps ─────────────────────────────────────────────────────────────────
@@ -27,13 +28,18 @@ const COLORMAPS = {
   greys:    [[0,'#ffffff'],[0.5,'#969696'],[1,'#000000']],
 };
 
-function colorExpr(name) {
-  const stops = COLORMAPS[name] || COLORMAPS.viridis;
-  return ['interpolate', ['linear'], ['get', 't'], ...stops.flatMap(([t, c]) => [t, c])];
+function activeStops() {
+  const stops = COLORMAPS[selectedColormap] || COLORMAPS.viridis;
+  if (!colorFlipped) return stops;
+  return stops.map(([t, c]) => [1 - t, c]).reverse();
+}
+
+function colorExpr() {
+  return ['interpolate', ['linear'], ['get', 't'], ...activeStops().flatMap(([t, c]) => [t, c])];
 }
 
 function circleColorProp() {
-  return ['case', ['<', ['get', 't'], 0], 'rgba(180,180,180,0.4)', colorExpr(selectedColormap)];
+  return ['case', ['<', ['get', 't'], 0], 'rgba(180,180,180,0.4)', colorExpr()];
 }
 
 // Circle radius from native pixel resolution (mid-latitude correction ~cos 45°)
@@ -51,9 +57,10 @@ function radiusExpr(resolutionM) {
 }
 
 // ── Map init ─────────────────────────────────────────────────────────────────
-function initMap() {
+function initMap(view = { center: [-120.5, 47.5], zoom: 6 }) {
   map = new maplibregl.Map({
     container: 'map',
+    preserveDrawingBuffer: true,
     style: {
       version: 8,
       sources: {
@@ -66,8 +73,8 @@ function initMap() {
       },
       layers: [{ id: 'osm', type: 'raster', source: 'osm' }],
     },
-    center: [-120.5, 47.5],
-    zoom: 6,
+    center: view.center,
+    zoom: view.zoom,
   });
 
   map.on('load', () => {
@@ -195,6 +202,14 @@ function onColormapChange() {
   updateLegendBar();
 }
 
+function onFlipColors() {
+  colorFlipped = document.getElementById('flip-colors').checked;
+  if (map.getLayer('geo-layer')) {
+    map.setPaintProperty('geo-layer', 'circle-color', circleColorProp());
+  }
+  updateLegendBar();
+}
+
 function onOpacityChange() {
   currentOpacity = parseFloat(document.getElementById('opacity-slider').value);
   document.getElementById('opacity-val').textContent = Math.round(currentOpacity * 100) + '%';
@@ -312,7 +327,7 @@ function updateLegend(meta) {
 }
 
 function updateLegendBar() {
-  const stops = (COLORMAPS[selectedColormap] || COLORMAPS.viridis)
+  const stops = activeStops()
     .map(([t, c]) => `${c} ${(t * 100).toFixed(0)}%`)
     .join(', ');
   document.getElementById('legend-bar').style.background =
@@ -332,19 +347,70 @@ function setStatus(msg, cls = '') {
   el.className = cls;
 }
 
-// ── Boot ─────────────────────────────────────────────────────────────────────
-try {
-  initMap();
-} catch (err) {
-  console.error('Map init failed:', err);
-  setStatus('Map failed to load — check console.', 'error');
+// ── Save / restore view ───────────────────────────────────────────────────────
+async function saveView() {
+  const c = map.getCenter();
+  const btn = document.getElementById('save-view-btn');
+  try {
+    const resp = await fetch('/api/view', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ center: [c.lng, c.lat], zoom: map.getZoom() }),
+    });
+    btn.textContent = resp.ok ? 'Saved ✓' : 'Error';
+  } catch (_) {
+    btn.textContent = 'Error';
+  }
+  setTimeout(() => { btn.textContent = 'Save view'; }, 2000);
 }
+
+async function loadSavedView() {
+  try {
+    const resp = await fetch('/api/view');
+    if (!resp.ok) { setStatus('No saved view.', 'error'); return; }
+    const view = await resp.json();
+    map.flyTo({ center: view.center, zoom: view.zoom, essential: true });
+  } catch (_) {
+    setStatus('Could not load saved view.', 'error');
+  }
+}
+
+// ── Screenshot ───────────────────────────────────────────────────────────────
+function takeScreenshot() {
+  const canvas = map.getCanvas();
+  const url = canvas.toDataURL('image/png');
+  const parts = [
+    selectedSource?.name || 'map',
+    selectedVariable || '',
+    selectedTimestamp?.slice(0, 4) || '',
+  ].filter(Boolean).join('_');
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `geometrics_${parts}.png`;
+  a.click();
+}
+
+// ── Boot ─────────────────────────────────────────────────────────────────────
+fetch('/api/view')
+  .then(r => r.json())
+  .catch(() => ({ center: [-120.5, 47.5], zoom: 6 }))
+  .then(view => {
+    try {
+      initMap(view);
+    } catch (err) {
+      console.error('Map init failed:', err);
+      setStatus('Map failed to load — check console.', 'error');
+    }
+    loadSources();
+  });
 
 document.getElementById('source-select').addEventListener('change', onSourceChange);
 document.getElementById('variable-select').addEventListener('change', onVariableChange);
 document.getElementById('colormap-select').addEventListener('change', onColormapChange);
+document.getElementById('flip-colors').addEventListener('change', onFlipColors);
 document.getElementById('opacity-slider').addEventListener('input', onOpacityChange);
 document.getElementById('load-btn').addEventListener('click', () => loadData());
 document.getElementById('focus-btn').addEventListener('click', loadFocusArea);
-
-loadSources();
+document.getElementById('save-view-btn').addEventListener('click', saveView);
+document.getElementById('load-saved-view-btn').addEventListener('click', loadSavedView);
+document.getElementById('screenshot-btn').addEventListener('click', takeScreenshot);

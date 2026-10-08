@@ -28,9 +28,11 @@ from typing import Union
 import pandas as pd
 from sqlalchemy import inspect as sa_inspect, text
 
-from geometrics.backends.hiergp import HierGPBackend
+from geometrics.backends import get_backend
+from geometrics.backends.levels import native_level_for_backend
 from geometrics.catalog import CATALOG
 from geometrics.config import GeoMetricsConfig, load_config
+from geometrics.instrumentation import timed
 from geometrics.store.db import get_engine
 from geometrics.store.query import (
     DataQuery, VariableSpec, check_availability, clear_observations, fetch, resolve,
@@ -49,11 +51,28 @@ class GeoMetrics:
     def __init__(self, config: GeoMetricsConfig | None = None):
         self.config = config or load_config()
         self.engine = get_engine(self.config.db_url)
-        self.backend = HierGPBackend()
+        self.backend = get_backend(self.config.backend)
 
     # ------------------------------------------------------------------
     # Public methods
     # ------------------------------------------------------------------
+
+    def init_gee(self) -> None:
+        """
+        Initialise Earth Engine against the configured project.
+
+        A bare ee.Initialize() picks up the gcloud application-default project,
+        which is rarely the one the EE account can use, so pass gee_project
+        explicitly when it is configured.
+        """
+        import ee
+
+        if getattr(ee.data, "_credentials", None) is not None:
+            return  # already initialised
+        if self.config.gee_project:
+            ee.Initialize(project=self.config.gee_project)
+        else:
+            ee.Initialize()
 
     def check(
         self,
@@ -79,12 +98,16 @@ class GeoMetrics:
             rows=rows,
             variables=[VariableSpec.parse(v) for v in variables],
         )
-        try:
-            items = resolve(self.engine, self.backend, query)
-        except ValueError as e:
-            print(f"[gm.check] {e}")
-            return {"available": [], "missing": []}
-        return check_availability(self.engine, self.backend, items)
+        with timed("check", locations=len(rows), variables=variables) as rec:
+            try:
+                items = resolve(self.engine, self.backend, query)
+            except ValueError as e:
+                print(f"[gm.check] {e}")
+                return {"available": [], "missing": []}
+            report = check_availability(self.engine, self.backend, items)
+            rec["available"] = len(report["available"])
+            rec["missing"] = len(report["missing"])
+        return report
 
     def fetch(
         self,
@@ -118,13 +141,15 @@ class GeoMetrics:
             rows=rows,
             variables=[VariableSpec.parse(v) for v in variables],
         )
-        try:
-            items = resolve(self.engine, self.backend, query)
-        except ValueError as e:
-            print(f"[gm.fetch] {e}")
-            return pd.DataFrame()
-
-        long_df = fetch(self.engine, self.backend, items)
+        with timed("fetch", locations=len(rows), variables=variables,
+                   output_format=output_format) as rec:
+            try:
+                items = resolve(self.engine, self.backend, query)
+            except ValueError as e:
+                print(f"[gm.fetch] {e}")
+                return pd.DataFrame()
+            long_df = fetch(self.engine, self.backend, items)
+            rec["rows_returned"] = len(long_df)
 
         if output_format == "long":
             return self._format_long(
@@ -152,15 +177,18 @@ class GeoMetrics:
         """
         from geometrics.extraction.dispatch import dispatch
 
+        self.init_gee()
         if not missing_items:
             print("Nothing to submit.")
             return []
 
-        job_ids = dispatch(
-            self.engine, self.config, self.backend, missing_items,
-            gdrive_folder=gdrive_folder,
-            batch_size=batch_size,
-        )
+        with timed("gee_submit", items=len(missing_items), batch_size=batch_size) as rec:
+            job_ids = dispatch(
+                self.engine, self.config, self.backend, missing_items,
+                gdrive_folder=gdrive_folder,
+                batch_size=batch_size,
+            )
+            rec["jobs"] = len(job_ids)
         print(f"\nSubmitted {len(job_ids)} job(s). Track with: gm.jobs()")
         return job_ids
 
@@ -191,7 +219,162 @@ class GeoMetrics:
         from geometrics.store.ingest import ingest_folder
 
         folder_path = Path(self.config.gdrive_base.strip().replace("\\ ", " ")) / gdrive_folder
-        return ingest_folder(self.engine, folder_path, backend_name=self.config.backend)
+        with timed("ingest", folder=gdrive_folder) as rec:
+            result = ingest_folder(
+                self.engine, folder_path, backend_name=self.config.backend,
+                gdrive_folder=gdrive_folder,
+            )
+            rec["files"] = len(result)
+            rec["rows_inserted"] = sum(result.values())
+        return result
+
+    def register_local_source(
+        self,
+        name: str,
+        operation: str,
+        variable_defs: list[dict] | None = None,
+        temporal_granularity: str | None = None,
+        native_level: int = 13,
+        pixel_resolution_m: int = 200,
+    ) -> None:
+        """
+        Register a local (non-GEE) source in the database.
+
+        operation: "nearest_distance", "inside", or "attribute_lookup".
+            - "nearest_distance" and "inside" use fixed variable names; no extra args needed.
+            - "attribute_lookup" requires variable_defs and temporal_granularity.
+        variable_defs: list of {"name": ..., "unit": ...} — required for attribute_lookup.
+        temporal_granularity: "static" (default for nearest_distance/inside), "annual",
+            "month", "day", etc.  Required for attribute_lookup.
+        native_level: HierGP standard level (default 13 = 100 m).
+        pixel_resolution_m: used by the viewer for circle sizing.
+        """
+        from geometrics.extraction.base import ensure_source
+
+        builtin_vars = {
+            "nearest_distance": (
+                [{"name": "nearest_distance", "unit": "km"}], "static"
+            ),
+            "inside": (
+                [{"name": "inside", "unit": "binary"}], "static"
+            ),
+        }
+
+        if operation in builtin_vars:
+            resolved_vars, resolved_tg = builtin_vars[operation]
+            resolved_vars = variable_defs or resolved_vars
+            resolved_tg = temporal_granularity or resolved_tg
+        elif operation == "attribute_lookup":
+            if not variable_defs:
+                raise ValueError(
+                    "attribute_lookup requires variable_defs, e.g. "
+                    "[{'name': 'pm25', 'unit': 'µg/m³'}, ...]"
+                )
+            if not temporal_granularity:
+                raise ValueError(
+                    "attribute_lookup requires temporal_granularity, e.g. 'annual'."
+                )
+            resolved_vars = variable_defs
+            resolved_tg = temporal_granularity
+        else:
+            raise ValueError(
+                f"Unknown operation {operation!r}. "
+                "Choose from: 'nearest_distance', 'inside', 'attribute_lookup'."
+            )
+
+        _, is_new = ensure_source(
+            engine=self.engine,
+            name=name,
+            native_level=native_level,
+            pixel_resolution_m=pixel_resolution_m,
+            source_temporal_granularity=None,
+            temporal_granularity=resolved_tg,
+            variable_defs=resolved_vars,
+        )
+        status = "Registered" if is_new else "Already registered"
+        print(f"{status} local source '{name}' (operation={operation}).")
+
+    def compute_local(
+        self,
+        locations: Union[str, pd.DataFrame],
+        source: str,
+        reference_data,
+        operation: str,
+        lat_col: str = "latitude",
+        lon_col: str = "longitude",
+        timestamp_col: str = "timestamp",
+        value_columns: dict | None = None,
+        temporal_range: tuple | None = None,
+        ref_lat_col: str = "latitude",
+        ref_lon_col: str = "longitude",
+    ) -> int:
+        """
+        Run a local spatial operation and write results to the database.
+
+        locations: CSV path or DataFrame — the locations you want values for.
+        source: name of a source registered with gm.register_local_source().
+        reference_data: GeoDataFrame (nearest_distance / inside) or plain DataFrame
+            (attribute_lookup) containing the reference features.
+        operation: "nearest_distance", "inside", or "attribute_lookup".
+
+        attribute_lookup only:
+          value_columns: {variable_name: [year_col, ...]} mapping each registered
+              variable to the list of year columns in reference_data.
+          temporal_range: (min_year, max_year) for clipping out-of-range timestamps.
+          ref_lat_col / ref_lon_col: lat/lon column names in reference_data.
+
+        Returns the number of rows inserted.
+        """
+        from geometrics.local.compute import (
+            compute_nearest_distance, compute_inside, compute_attribute_lookup,
+        )
+        from sqlalchemy import select as sa_select
+        from geometrics.store.schema import sources as sources_table
+
+        data = self._load(locations)
+
+        with self.engine.connect() as conn:
+            src_row = conn.execute(
+                sa_select(sources_table.c.native_level).where(sources_table.c.name == source)
+            ).fetchone()
+        if src_row is None:
+            raise ValueError(
+                f"Source {source!r} not found. Run gm.register_local_source() first."
+            )
+        native_level = src_row.native_level
+
+        if operation == "nearest_distance":
+            return compute_nearest_distance(
+                engine=self.engine, backend=self.backend, locations_df=data,
+                source_name=source, geodataframe=reference_data,
+                lat_col=lat_col, lon_col=lon_col,
+                native_level=native_level, backend_name=self.config.backend,
+            )
+        if operation == "inside":
+            return compute_inside(
+                engine=self.engine, backend=self.backend, locations_df=data,
+                source_name=source, geodataframe=reference_data,
+                lat_col=lat_col, lon_col=lon_col,
+                native_level=native_level, backend_name=self.config.backend,
+            )
+        if operation == "attribute_lookup":
+            if not value_columns:
+                raise ValueError("attribute_lookup requires value_columns.")
+            if not temporal_range:
+                raise ValueError("attribute_lookup requires temporal_range=(min_year, max_year).")
+            return compute_attribute_lookup(
+                engine=self.engine, backend=self.backend, locations_df=data,
+                source_name=source, dataframe=reference_data,
+                lat_col=lat_col, lon_col=lon_col,
+                native_level=native_level, backend_name=self.config.backend,
+                value_columns=value_columns, temporal_range=temporal_range,
+                ref_lat_col=ref_lat_col, ref_lon_col=ref_lon_col,
+                timestamp_col=timestamp_col,
+            )
+        raise ValueError(
+            f"Unknown operation {operation!r}. "
+            "Choose from: 'nearest_distance', 'inside', 'attribute_lookup'."
+        )
 
     def clear(self, source: str) -> None:
         """
@@ -208,10 +391,14 @@ class GeoMetrics:
         Poll GEE for all active (PENDING/RUNNING) jobs and update local status.
 
         Returns a summary dict {status: count}.
-        Requires ee.Initialize() to have been called.
         """
         from geometrics.store.jobs import check_status
-        return check_status(self.engine)
+
+        self.init_gee()
+        with timed("check_status") as rec:
+            summary = check_status(self.engine)
+            rec["summary"] = summary
+        return summary
 
     def register_sources(self) -> None:
         """Register all catalog sources and their variables in the database."""
@@ -222,9 +409,12 @@ class GeoMetrics:
             _, is_new = ensure_source(
                 engine=self.engine,
                 name=spec["name"],
-                native_level=spec["native_level"],
-                pixel_resolution_m=spec["pixel_resolution_m"],
-                source_temporal_granularity=spec["source_temporal_granularity"],
+                native_level=native_level_for_backend(
+                    spec["native_level"], self.config.backend
+                ),
+                # Local sources have no GEE pixel or source cadence of their own.
+                pixel_resolution_m=spec.get("pixel_resolution_m", 200),
+                source_temporal_granularity=spec.get("source_temporal_granularity"),
                 temporal_granularity=spec["temporal_granularity"],
                 variable_defs=spec["variables"],
             )
@@ -300,6 +490,7 @@ class GeoMetrics:
         db_url: str | None = None,
         gdrive_base: str | None = None,
         backend: str | None = None,
+        gee_project: str | None = None,
     ) -> "GeoMetrics":
         """
         Save a new config and return a GeoMetrics instance pointing at it.
@@ -321,6 +512,9 @@ class GeoMetrics:
                 _clean_path(gdrive_base) if gdrive_base is not None else current.gdrive_base
             ),
             backend=backend if backend is not None else current.backend,
+            gee_project=(
+                gee_project if gee_project is not None else current.gee_project
+            ),
         )
         save_config(updated, DEFAULT_CONFIG_PATH)
         import dataclasses
@@ -353,9 +547,22 @@ class GeoMetrics:
             .any()
             .reset_index()
         )
+
+        # Two sources can share a variable name (Landsat_NDVI:NDVI and
+        # MODIS_NDVI:NDVI both call it "NDVI"). Pivoting on the bare parameter
+        # collapses them into one column and silently drops a source, so
+        # qualify the ambiguous ones as "Source:parameter".
+        sources_per_param = long_df.groupby("parameter")["source"].nunique()
+        ambiguous = set(sources_per_param[sources_per_param > 1].index)
+        long_df = long_df.copy()
+        long_df["_column"] = [
+            f"{src}:{param}" if param in ambiguous else param
+            for src, param in zip(long_df["source"], long_df["parameter"])
+        ]
+
         value_pivot = long_df.pivot_table(
             index=["lat", "lon", "timestamp"],
-            columns="parameter",
+            columns="_column",
             values="value",
             aggfunc="first",
         ).reset_index()

@@ -34,7 +34,10 @@
     </div>
 
     <div class="control-group">
-      <label for="colormap-select">Colors</label>
+      <div class="label-row">
+        <label for="colormap-select">Colors</label>
+        <label class="flip-label"><input type="checkbox" id="flip-colors" /> Flip</label>
+      </div>
       <select id="colormap-select">
         <option value="viridis">Viridis</option>
         <option value="greens">Greens (vegetation)</option>
@@ -58,7 +61,14 @@
 
     <div id="btn-group">
       <button id="load-btn" disabled>Load data</button>
-      <button id="focus-btn" class="secondary" disabled>Load focus area</button>
+      <button id="focus-btn" disabled>Load focus area</button>
+    </div>
+
+    <div id="view-btn-group">
+      <label>Map view</label>
+      <button id="save-view-btn">Save view</button>
+      <button id="load-saved-view-btn">Load saved view</button>
+      <button id="screenshot-btn">Screenshot</button>
     </div>
 
     <div id="status-box">Select a source and variable.</div>
