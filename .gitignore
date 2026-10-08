@@ -22,8 +22,13 @@ test*.ipynb
 plan.md
 hiergp_recommendations.md
 
+# Viewer state
+viewer/saved_view.json
+
 # Data files (root-level only)
 /*.csv
 archive/
 examples/
-tests/
+
+# Demo store is committed only once populated
+demo/geometrics_demo.db

@@ -1,0 +1,9 @@
+site_id,site_name,timestamp,latitude,longitude,land_cover
+WA001,Seattle Urban Core,2024-07-15T14:30:00,47.6062,-122.3321,urban
+WA002,Mount Rainier Meadow,2023-07-15T11:00:00,46.8523,-121.7603,subalpine
+WA003,Yakima Valley Orchard,2023-07-15T13:15:00,46.6021,-120.5059,agriculture
+WA004,Olympic Peninsula Rainforest,2023-07-15T09:45:00,47.8021,-123.9344,forest
+WA005,Palouse Wheat Fields,2023-07-15T12:00:00,46.7298,-117.1817,agriculture
+WA006,Palouse Wheat Fields,2024-07-15T12:00:00,46.7298,-117.1817,agriculture
+WA006,Palouse Wheat Fields,2024-09-15T12:00:00,46.7297,-117.1817,agriculture
+BR001,Amazon Rainforest Santarem,2023-08-01T10:00:00,-2.4297,-54.7083,tropical_forest
