@@ -37,22 +37,22 @@
     "postgres_version": "PostgreSQL 16.9 (Debian 16.9-1.pgdg120+1)",
     "backend": "hiergp"
   },
-  "code_version": "v0.2.0",
-  "participant_ids": [
-    10,
-    15,
-    19,
-    20,
-    23,
-    33,
-    36,
-    40,
-    41,
-    43
-  ],
+  "code_version": "v0.2.0-dirty",
+  "participants": 10,
+  "participant_ids_distributed": false,
+  "participant_selection_rule": "Participants are selected deterministically, so a rebuild picks the same set without the ids being published: iterate client_id ascending over participants with any location rows; for each, take up to POINTS_PER_WEEK points per ISO week of YEAR, ranked by timestamp within the week (row_number over date_trunc('week', datetime) ordered by datetime); keep the participant only if the result covers at least MIN_WEEKS distinct ISO weeks; stop once N_PARTICIPANTS participants have been kept.",
+  "participant_selection_parameters": {
+    "order": "client_id ascending",
+    "year": 2019,
+    "points_per_week": 4,
+    "min_weeks": 40,
+    "n_participants": 10
+  },
   "points_per_week_per_participant": 4,
   "min_weeks_required": 40,
   "points_file": "case_study_points.csv",
+  "points_file_distributed": false,
+  "points_file_note": "Real participant coordinates, withheld. Regenerate with `case_study.py record` against the GTL source database; the recorded SHA-256 verifies the rebuild.",
   "points_sha256": "6a6b5342022a9c035470b19509bc3697f6e10ee84d59ad2e3841d3b628cacfba",
   "inspection": {
     "rows": 2002,
@@ -77,9 +77,5 @@
     }
   },
   "summary_rows": 494,
-  "summary_sha256": "4944b48a5f78ff032e6e8e4eb3d501c546480e0d9ac00c9aeb4c83a5ff7f27de",
-  "points_file_distributed": false,
-  "points_file_note": "Real participant coordinates, withheld. Regenerate with `case_study.py record` against the GTL source database; the recorded SHA-256 verifies the rebuild.",
-  "summary_file_distributed": false,
-  "summary_file_note": "Per-participant weekly exposure series, withheld: the cohort is a small twin registry and the paper commits to releasing no cohort-level location or exposure distributions. The recorded summary_sha256 verifies an authorised rebuild."
+  "summary_sha256": "4944b48a5f78ff032e6e8e4eb3d501c546480e0d9ac00c9aeb4c83a5ff7f27de"
 }

@@ -70,8 +70,15 @@ Three cohort-derived files are not distributed:
   location or exposure distributions. Relabelling the ids would not change what
   the file is.
 
-All three regenerate from the source database with the scripts above, and the
-manifests retain their SHA-256 values so an authorised rebuild can still be
+The published manifest also omits the participant ids, recording only the count
+and the deterministic selection rule (`participant_selection_rule` and its
+parameters). Which registry members were studied tells a reader nothing they
+need, and the rule reproduces the same set for anyone with database access —
+verified: regenerating the manifest from the rule alone yields the same summary
+SHA-256.
+
+All three files regenerate from the source database with the scripts above, and
+the manifests retain their SHA-256 values so an authorised rebuild can still be
 verified. Everything else here is aggregate across sources, synthetic, or derived
 from public datasets.
 

@@ -32,6 +32,10 @@ from sqlalchemy import text
 
 from geometrics import GeoMetrics
 
+PARTICIPANT_SELECTION_RULE = (
+    "Participants are selected deterministically, so a rebuild picks the same set without the ids being published: iterate client_id ascending over participants with any location rows; for each, take up to POINTS_PER_WEEK points per ISO week of YEAR, ranked by timestamp within the week (row_number over date_trunc('week', datetime) ordered by datetime); keep the participant only if the result covers at least MIN_WEEKS distinct ISO weeks; stop once N_PARTICIPANTS participants have been kept."
+)
+
 QUESTION = ("For each participant, what was their mean weekly exposure to greenness "
             "(Landsat NDVI) and to fine particulate air pollution (CACES PM2.5) "
             "during 2019?")
@@ -212,7 +216,19 @@ def record(out_dir: Path) -> None:
     summary.to_csv(out_dir / "case_study_summary.csv", index=False)
 
     provenance.update({
-        "participant_ids": sorted(int(c) for c in points["client_id"].unique()),
+        # The ids themselves are not published: which registry members were
+        # studied is a disclosure that buys a reader nothing, and the selection
+        # rule below reproduces the same set for anyone with database access.
+        "participants": int(points["client_id"].nunique()),
+        "participant_ids_distributed": False,
+        "participant_selection_rule": PARTICIPANT_SELECTION_RULE,
+        "participant_selection_parameters": {
+            "order": "client_id ascending",
+            "year": YEAR,
+            "points_per_week": POINTS_PER_WEEK,
+            "min_weeks": MIN_WEEKS,
+            "n_participants": N_PARTICIPANTS,
+        },
         "points_per_week_per_participant": POINTS_PER_WEEK,
         "min_weeks_required": MIN_WEEKS,
         "points_file": "case_study_points.csv",
@@ -240,7 +256,8 @@ def reproduce(out_dir: Path) -> None:
     print("reproducing from manifest:")
     print(f"  question: {manifest['question']}")
     print(f"  variables: {manifest['variables']}")
-    print(f"  participants: {manifest['participant_ids']}")
+    print(f"  participants: {manifest['participants']} "
+          f"(ids not published; selected by the recorded rule)")
     print(f"  code version recorded: {manifest['code_version']}")
 
     points = pd.read_csv(out_dir / manifest["points_file"])
