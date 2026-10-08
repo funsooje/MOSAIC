@@ -38,6 +38,8 @@ Your locations CSV
 
 ## Supported datasets
 
+### GEE sources
+
 | Source | Variable(s) | Native resolution | Temporal | GEE collection |
 |--------|-------------|:-----------------:|----------|----------------|
 | `Landsat_NDVI` | `NDVI` | 30 m | Annual median | Landsat 5/7/8/9 (USGS SR) |
@@ -47,6 +49,16 @@ Your locations CSV
 | `JRC_Water` | `water_distance` | 30 m | Annual | JRC Global Surface Water |
 | `YALE_UHI` | `yearly_daytime`, `yearly_nighttime`, `winter_daytime`, `winter_nighttime`, `summer_daytime`, `summer_nighttime` | 1 km | Annual | Yale Urban Heat Island |
 | `NLCD` | `landcover`, `impervious`, `impervious_descriptor` | 30 m | Annual | NLCD (USGS) |
+
+### Local sources
+
+Local sources are computed from shapefiles or tabular data you supply — no GEE required. Values are stored in the same observation tables as GEE sources and appear in the viewer automatically.
+
+| Source | Variable(s) | Native resolution | Temporal | Input data |
+|--------|-------------|:-----------------:|----------|------------|
+| `Parks_Distance` | `nearest_distance` (km) | 100 m | Static | PADUS protected areas (polygon shapefile) |
+| `Walkability` | `natwalkind` (1–20) | 100 m | Static | EPA National Walkability Index (tabular) |
+| `CACES_Air` | `pm25` (µg/m³), `no2` (ppb) | 100 m | Annual | CACES land-use regression estimates (tabular) |
 
 ---
 
@@ -210,14 +222,17 @@ Open `http://localhost:8765` in your browser.
 - Browse all sources, variables, and available years from a sidebar
 - Load up to 200,000 cells for the full dataset or just the current viewport ("Load focus area")
 - Circle radius scales with the dataset's spatial resolution
-- 12 colormaps (Viridis, Greens, NDVI Red→Green, Blues, Plasma, Inferno, Magma, Yellow→Red, Spectral, Cividis, Hot, Greys)
+- 12 colormaps with a **Flip** checkbox to reverse any colormap
 - Adjustable opacity
 - Hover tooltip showing value and coordinates
 - Auto-updating legend with data min/max
+- **Save view / Load saved view** — persist the current map center and zoom to `viewer/saved_view.json` for reproducible screenshots
 
 The viewer API is also accessible directly:
 - `GET /api/sources` — all sources with variables and available timestamps
 - `GET /api/data?source=&variable=&timestamp=&bbox=` — cell data for a selection
+- `GET /api/view` — saved map center and zoom (or default if none saved)
+- `POST /api/view` — save current center and zoom (`{center: [lng, lat], zoom: number}`)
 
 ---
 
@@ -274,21 +289,35 @@ gm.reset_db()          # drop all observation tables and reinitialize
 
 ### Spatial grid
 
-GeoMetrics uses HierGP, a recursive rectangular grid with a base cell size of 25 m. The grid has 15 levels:
+The grid layer is pluggable via the `backend` config option. Two backends are provided:
 
-| Standard level | Cell size | Typical use |
-|:--------------:|-----------|-------------|
-| 15 | 25 m | Finest — high-res imagery |
-| 14 | 50 m | |
-| 13 | 100 m | |
-| 12 | 200 m | |
-| 11 | 400 m | |
-| 10 | 800 m | |
-| 9 | 1.6 km | |
-| ... | ... | |
-| 1 | ~410 km | Coarsest |
+**HierGP** (`backend="hiergp"`, default) — recursive rectangular grid, base cell size 25 m, 15 levels. Higher standard level = finer resolution.
 
-Each source is registered with a `native_level` that matches its pixel footprint. Locations are snapped to that level, so two sites that fall in the same 100 m cell share a single database row for that source.
+| Standard level | Cell size |
+|:--------------:|-----------|
+| 15 | 25 m |
+| 14 | 50 m |
+| 13 | 100 m |
+| 12 | 200 m |
+| 11 | 400 m |
+| 10 | 800 m |
+| 9 | 1.6 km |
+| ... | ... |
+| 1 | ~410 km |
+
+**H3** (`backend="h3"`) — Uber's hexagonal hierarchical grid, 15 resolutions (0 = coarsest, 14 = finest). `cell_id` is the native H3 index string. Useful when hexagonal neighbourhood relationships matter.
+
+| H3 resolution | Approx. edge length |
+|:-------------:|---------------------|
+| 11 | 25 m |
+| 10 | 66 m |
+| 9 | 174 m |
+| 8 | 461 m |
+| 7 | 1.2 km |
+
+Both backends implement the same `GridBackend` interface (`point_to_cell`, `cell_to_centroid`, `cell_parent`, `cell_children`). The rest of the system — schema, ingest, query, viewer — is identical regardless of which backend is active.
+
+Each source is registered with a `native_level` that matches its pixel footprint. Locations are snapped to that level, so two sites that fall in the same cell share a single database row for that source.
 
 ### Database schema
 
@@ -304,11 +333,114 @@ jobs                 — GEE export task registry (status, file paths, row count
 
 The observation tables are intentionally denormalized (wide format) so that fetching multiple variables for the same location requires only one join. The `spatiotemporal_units` table is partitioned by year in PostgreSQL for fast range scans.
 
-### Adding a new source
+### Adding a new GEE source
 
 1. Create `geometrics/extraction/my_source.py` and define a `SOURCE_SPEC` dict and a `build_ee_image()` function following the pattern in `geometrics/extraction/ndvi.py`.
 2. Import `SOURCE_SPEC` in `geometrics/catalog.py` and add it to `CATALOG`.
 3. Run `gm.register_sources()` to add the source and its variables to the database.
+
+### Adding a local source
+
+Local sources are computed from a shapefile or tabular dataset you supply and stored like any other source. Three spatial operations are supported:
+
+| Operation | Use when |
+|-----------|----------|
+| `nearest_distance` | Reference is a polygon layer (e.g. parks, water bodies); computes km distance to nearest boundary, 0 if inside |
+| `inside` | Reference is a polygon layer; writes 1.0 (inside) or 0.0 (outside) |
+| `attribute_lookup` | Reference is a point layer with per-year value columns; nearest-neighbour match |
+
+**Step 1 — Register the source**
+
+```python
+gm.register_local_source(
+    "Parks_Distance",
+    operation="nearest_distance",
+    # variable_defs defaults to [{"name": "nearest_distance", "unit": "km"}]
+)
+
+gm.register_local_source(
+    "Walkability",
+    operation="attribute_lookup",
+    variable_defs=[{"name": "natwalkind", "unit": "score"}],
+    temporal_granularity="static",
+)
+```
+
+**Step 2 — Compute and store values**
+
+Pass your locations DataFrame and the reference GeoDataFrame (loaded however you like — `geopandas.read_file()`, a PostGIS query, etc.):
+
+```python
+import geopandas as gpd
+from geometrics.local.compute import compute_nearest_distance
+
+parks_gdf = gpd.read_file("path/to/padus.shp")
+
+compute_nearest_distance(
+    engine=gm.engine,
+    backend=gm._backend,
+    locations_df=locations_df,
+    source_name="Parks_Distance",
+    geodataframe=parks_gdf,
+    lat_col="latitude",
+    lon_col="longitude",
+    native_level=13,
+)
+```
+
+**Step 3 — Add a catalog entry** so the viewer shows a description:
+
+```python
+# geometrics/local/sources.py
+MY_SOURCE_SPEC = {
+    "name": "Parks_Distance",
+    "description": "Distance (km) to nearest protected area boundary (PADUS)",
+    "native_level": 13,
+    "temporal_granularity": "static",
+    "variables": [{"name": "nearest_distance", "unit": "km", "description": "..."}],
+}
+```
+
+Then import and add it to `CATALOG` in `geometrics/catalog.py`.
+
+The source file (shapefile, GDB, CSV) is not stored in the database — only the computed values are. Re-run `compute_*` with the updated file if you add new locations or want to refresh values.
+
+---
+
+## Experiments
+
+### 5d — Privacy analysis (k-anonymity proxy)
+
+**Script:** `scripts/experiment_5d_privacy.py`
+
+**Question:** If each level-13 cell (100 m) is treated as a raw observation, how many raw observations fall into each cell when the grid is coarsened to level L? The average count per coarser cell (k) is a proxy for k-anonymity — higher k means an individual observation is harder to link back to a specific location.
+
+**Method:** 3,091,917 unique level-13 cells are taken as raw observations. For each target level 1–12, cells are grouped into their parent at that level by integer-dividing the x/y coordinates by 2^(13−L). The distribution of group sizes is recorded.
+
+**Results:**
+
+| Level | Cell size | Unique cells | Mean k | Median k |
+|:-----:|----------:|-------------:|-------:|---------:|
+| 13 | 100 m | 3,091,917 | 1.0 | 1.0 |
+| 12 | 200 m | 1,823,340 | 1.7 | 1.0 |
+| 11 | 400 m | 1,027,539 | 3.0 | 2.0 |
+| 10 | 800 m | 535,867 | 5.8 | 3.0 |
+| 9 | 1.6 km | 267,735 | 11.5 | 5.0 |
+| 8 | 3.2 km | 133,431 | 23.2 | 8.0 |
+| 7 | 6.4 km | 65,673 | 47.1 | 12.0 |
+| 6 | 12.8 km | 31,409 | 98.4 | 20.0 |
+| 5 | 25.6 km | 14,403 | 214.7 | 33.0 |
+| 4 | 51.2 km | 6,161 | 501.9 | 60.0 |
+| 3 | 102.4 km | 2,564 | 1,205.9 | 88.5 |
+
+**Key findings:**
+
+- Mean k grows approximately 4× per level (consistent with each level halving both x and y), reaching k ≈ 11.5 at level 9 (1.6 km) and k ≈ 23.2 at level 8 (3.2 km).
+- Median k grows more slowly than mean k at every level, revealing a right-skewed distribution: monitored regions are spatially clustered, so a few cells aggregate many observations while most cells in sparse regions contain very few.
+- A commonly cited k-anonymity threshold of k ≥ 5 is met at the **median** only from level 9 (1.6 km) onward. The mean exceeds k = 5 already at level 10 (800 m), but the median-vs-mean gap warns that the guarantee does not hold uniformly across space.
+- The practical trade-off: aggregating from 100 m (level 13) to 1.6 km (level 9) reduces unique cells by 11.5× while providing median k-anonymity of 5. Moving to 3.2 km (level 8) reduces cells by 23× with median k = 8.
+
+![Privacy analysis figure](figures/experiment_5d_privacy.png)
 
 ---
 
