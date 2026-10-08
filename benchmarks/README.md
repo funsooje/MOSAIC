@@ -56,6 +56,20 @@ warm-OS. State it that way when citing them.
   timer-based version killed the process during interpreter startup, before any
   write, and measured nothing.
 
+## A removed computation
+
+An earlier script, `scripts/experiment_5d_privacy.py`, and its outputs
+(`figures/experiment_5d_privacy.csv` and `.png`) were removed as invalid. They
+counted how many level-13 child cells fell inside each parent cell and labelled
+that count k. k-anonymity must count individuals who are indistinguishable
+within a released unit, and a parent cell holding 100 child cells may hold one
+participant or fifty; its `k_mean` column reached 579,929, which is a cell count.
+The claim it supported was withdrawn from the paper.
+
+`k_anonymity.py` replaces it and counts distinct participants per released
+(cell, time bin) unit. Its units-per-level figures also cover the cell-count
+reduction the old script legitimately measured, without the false label.
+
 ## What is deliberately not here
 
 Three cohort-derived files are not distributed:
