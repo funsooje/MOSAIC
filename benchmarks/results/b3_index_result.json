@@ -1,0 +1,16 @@
+{
+  "query": "ERA5 lookup keyed on timestamp only (the shape the viewer uses)",
+  "before": {
+    "median_ms": 64.3,
+    "plan_scan": "->  Parallel Seq Scan on spatiotemporal_units_2019 u  (cost=0.00..45283.82 rows=105 width=4) (actual time=15.700..57.785 rows=78 loops=5)"
+  },
+  "after": {
+    "median_ms": 1.9,
+    "plan_scan": "->  Index Scan using spatiotemporal_units_2019_timestamp_idx on spatiotemporal_units_2019 u  (cost=0.43..243.80 rows=423 width=4) (actual time=0.008..0.132 rows=107 loops=1)"
+  },
+  "index_build_seconds": 12.4,
+  "index_size": "0 bytes",
+  "db_bytes_before": 13336490467,
+  "db_bytes_after": 13638521315,
+  "speedup": 33.8
+}
