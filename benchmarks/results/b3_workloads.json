@@ -1,0 +1,124 @@
+{
+  "p1_month": {
+    "participants_requested": 1,
+    "participants_with_points": 1,
+    "points": 10,
+    "range": [
+      "2019-06-01",
+      "2019-07-01"
+    ],
+    "file": "b3_points_p1_month.csv",
+    "note": "first participant with data in window: client 10"
+  },
+  "p1_year": {
+    "participants_requested": 1,
+    "participants_with_points": 1,
+    "points": 10,
+    "range": [
+      "2019-01-01",
+      "2020-01-01"
+    ],
+    "file": "b3_points_p1_year.csv",
+    "note": "first participant with data in window: client 10"
+  },
+  "p1_full": {
+    "participants_requested": 1,
+    "participants_with_points": 1,
+    "points": 10,
+    "range": [
+      "2010-01-01",
+      "2023-01-01"
+    ],
+    "file": "b3_points_p1_full.csv"
+  },
+  "p10_month": {
+    "participants_requested": 10,
+    "participants_with_points": 4,
+    "points": 40,
+    "range": [
+      "2019-06-01",
+      "2019-07-01"
+    ],
+    "file": "b3_points_p10_month.csv"
+  },
+  "p10_year": {
+    "participants_requested": 10,
+    "participants_with_points": 7,
+    "points": 70,
+    "range": [
+      "2019-01-01",
+      "2020-01-01"
+    ],
+    "file": "b3_points_p10_year.csv"
+  },
+  "p10_full": {
+    "participants_requested": 10,
+    "participants_with_points": 10,
+    "points": 100,
+    "range": [
+      "2010-01-01",
+      "2023-01-01"
+    ],
+    "file": "b3_points_p10_full.csv"
+  },
+  "p100_month": {
+    "participants_requested": 100,
+    "participants_with_points": 54,
+    "points": 540,
+    "range": [
+      "2019-06-01",
+      "2019-07-01"
+    ],
+    "file": "b3_points_p100_month.csv"
+  },
+  "p100_year": {
+    "participants_requested": 100,
+    "participants_with_points": 65,
+    "points": 650,
+    "range": [
+      "2019-01-01",
+      "2020-01-01"
+    ],
+    "file": "b3_points_p100_year.csv"
+  },
+  "p100_full": {
+    "participants_requested": 100,
+    "participants_with_points": 100,
+    "points": 1000,
+    "range": [
+      "2010-01-01",
+      "2023-01-01"
+    ],
+    "file": "b3_points_p100_full.csv"
+  },
+  "pall_month": {
+    "participants_requested": "all",
+    "participants_with_points": 215,
+    "points": 2150,
+    "range": [
+      "2019-06-01",
+      "2019-07-01"
+    ],
+    "file": "b3_points_pall_month.csv"
+  },
+  "pall_year": {
+    "participants_requested": "all",
+    "participants_with_points": 242,
+    "points": 2403,
+    "range": [
+      "2019-01-01",
+      "2020-01-01"
+    ],
+    "file": "b3_points_pall_year.csv"
+  },
+  "pall_full": {
+    "participants_requested": "all",
+    "participants_with_points": 346,
+    "points": 3442,
+    "range": [
+      "2010-01-01",
+      "2023-01-01"
+    ],
+    "file": "b3_points_pall_full.csv"
+  }
+}

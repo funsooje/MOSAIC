@@ -1,0 +1,22 @@
+{
+  "n_cells": 500,
+  "n_reference_points": 2000,
+  "cell_lat_range": [
+    -43.97,
+    61.55
+  ],
+  "old_mercator": {
+    "mean_reported_km": 271.442,
+    "mean_true_km_for_its_pick": 207.922,
+    "mean_inflation": 1.3432,
+    "max_inflation": 2.0717,
+    "mean_abs_error_km": 63.521,
+    "max_abs_error_km": 231.834
+  },
+  "new_geodesic": {
+    "mean_km": 207.891,
+    "exact_by_construction": true
+  },
+  "picked_a_different_nearest_feature": 7,
+  "mean_km_difference_old_minus_new": 63.551
+}

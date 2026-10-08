@@ -1,0 +1,37 @@
+{
+  "startup_seconds": 92.4,
+  "viewports": {
+    "city (10x10 km)": {
+      "first_call_seconds": 8.84,
+      "cached_median_seconds": 0.07,
+      "cells_returned": 875,
+      "cells_available": 875,
+      "sampled_to_cap": false,
+      "gzip_bytes": 7684
+    },
+    "county (100x100 km)": {
+      "first_call_seconds": 0.75,
+      "cached_median_seconds": 0.09,
+      "cells_returned": 4600,
+      "cells_available": 4600,
+      "sampled_to_cap": false,
+      "gzip_bytes": 47256
+    },
+    "state (800x600 km)": {
+      "first_call_seconds": 2.31,
+      "cached_median_seconds": 1.38,
+      "cells_returned": 200000,
+      "cells_available": 437434,
+      "sampled_to_cap": true,
+      "gzip_bytes": 1692562
+    },
+    "full extent": {
+      "first_call_seconds": 1.31,
+      "cached_median_seconds": 1.41,
+      "cells_returned": 200000,
+      "cells_available": 1047545,
+      "sampled_to_cap": true,
+      "gzip_bytes": 2314473
+    }
+  }
+}

@@ -1,0 +1,3 @@
+{"stage": "b4_submit", "seconds": 7.128, "at": "2026-10-07T23:54:28", "jobs": 7, "items": 1400}
+{"stage": "demo_check", "seconds": 1.811, "at": "2026-10-07T23:54:29", "available": 0, "missing": 3000}
+{"stage": "demo_submit", "seconds": 3.035, "at": "2026-10-07T23:54:32", "jobs": 2, "items": 3000}

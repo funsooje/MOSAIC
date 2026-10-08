@@ -1,0 +1,18 @@
+{
+  "b4_jobs": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "b4_folder": "mosaic-b4-run1",
+  "demo_jobs": [
+    1,
+    2
+  ],
+  "demo_folder": "mosaic-demo-run1",
+  "submitted_at": "2026-10-07T23:54:32"
+}

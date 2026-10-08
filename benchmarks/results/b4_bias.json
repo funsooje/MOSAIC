@@ -1,0 +1,142 @@
+{
+  "Landsat_NDVI": {
+    "signed_mean": -0.15477,
+    "per_year": {
+      "2013": {
+        "count": 50,
+        "mean": -0.1243,
+        "std": 0.1415
+      },
+      "2016": {
+        "count": 50,
+        "mean": -0.2,
+        "std": 0.1304
+      },
+      "2019": {
+        "count": 50,
+        "mean": -0.1436,
+        "std": 0.0944
+      },
+      "2022": {
+        "count": 50,
+        "mean": -0.1512,
+        "std": 0.1212
+      }
+    },
+    "by_urban": {
+      "False": {
+        "count": 100,
+        "mean": -0.1649
+      },
+      "True": {
+        "count": 100,
+        "mean": -0.1447
+      }
+    }
+  },
+  "MODIS_NDVI": {
+    "signed_mean": 0.00101,
+    "per_year": {
+      "2013": {
+        "count": 50,
+        "mean": -0.0,
+        "std": 0.0615
+      },
+      "2016": {
+        "count": 50,
+        "mean": 0.0129,
+        "std": 0.0462
+      },
+      "2019": {
+        "count": 50,
+        "mean": 0.0001,
+        "std": 0.0471
+      },
+      "2022": {
+        "count": 50,
+        "mean": -0.009,
+        "std": 0.0646
+      }
+    },
+    "by_urban": {
+      "False": {
+        "count": 100,
+        "mean": 0.0095
+      },
+      "True": {
+        "count": 100,
+        "mean": -0.0075
+      }
+    }
+  },
+  "MODIS_Treecover": {
+    "signed_mean": 0.52041,
+    "per_year": {
+      "2013": {
+        "count": 47,
+        "mean": 1.617,
+        "std": 8.1842
+      },
+      "2016": {
+        "count": 50,
+        "mean": 0.26,
+        "std": 5.046
+      },
+      "2019": {
+        "count": 49,
+        "mean": 1.0612,
+        "std": 7.0782
+      },
+      "2022": {
+        "count": 50,
+        "mean": -0.78,
+        "std": 8.0845
+      }
+    },
+    "by_urban": {
+      "False": {
+        "count": 97,
+        "mean": 0.1753
+      },
+      "True": {
+        "count": 99,
+        "mean": 0.8586
+      }
+    }
+  },
+  "YALE_UHI": {
+    "signed_mean": -0.047,
+    "per_year": {
+      "2013": {
+        "count": 49,
+        "mean": -0.0119,
+        "std": 0.6674
+      },
+      "2016": {
+        "count": 46,
+        "mean": 0.0092,
+        "std": 0.3913
+      },
+      "2019": {
+        "count": 47,
+        "mean": -0.0581,
+        "std": 0.47
+      },
+      "2022": {
+        "count": 45,
+        "mean": -0.1311,
+        "std": 0.4035
+      }
+    },
+    "by_urban": {
+      "False": {
+        "count": 89,
+        "mean": -0.0806
+      },
+      "True": {
+        "count": 98,
+        "mean": -0.0165
+      }
+    }
+  }
+}

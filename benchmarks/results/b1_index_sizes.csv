@@ -1,0 +1,16 @@
+index_name,size
+obs_era5_land_pkey,697 MB
+obs_caces_air_pkey,254 MB
+cells_cell_id_key,237 MB
+obs_modis_ndvi_pkey,237 MB
+obs_modis_treecover_pkey,235 MB
+obs_landsat_ndvi_pkey,229 MB
+spatiotemporal_units_2019_cell_pk_timestamp_key,225 MB
+obs_nlcd_pkey,224 MB
+spatiotemporal_units_2018_cell_pk_timestamp_key,218 MB
+spatiotemporal_units_2021_cell_pk_timestamp_key,208 MB
+obs_jrc_water_pkey,204 MB
+spatiotemporal_units_2017_cell_pk_timestamp_key,196 MB
+spatiotemporal_units_2020_cell_pk_timestamp_key,193 MB
+spatiotemporal_units_1900_cell_pk_timestamp_key,182 MB
+spatiotemporal_units_2016_cell_pk_timestamp_key,148 MB

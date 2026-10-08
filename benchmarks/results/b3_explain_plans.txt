@@ -1,0 +1,67 @@
+=== A. single-cell value lookup (requested level == native)
+Nested Loop  (cost=0.86..176.62 rows=50 width=8) (actual time=2.607..2.608 rows=1 loops=1)
+  Buffers: shared hit=4 read=4
+  ->  Index Scan using spatiotemporal_units_2021_cell_pk_timestamp_key on spatiotemporal_units_2021 u  (cost=0.43..44.12 rows=50 width=4) (actual time=1.635..1.636 rows=1 loops=1)
+        Index Cond: ((cell_pk = 12247841) AND ("timestamp" = '2021-01-01 00:00:00'::timestamp without time zone))
+        Buffers: shared hit=2 read=2
+  ->  Index Scan using obs_landsat_ndvi_pkey on obs_landsat_ndvi o  (cost=0.43..2.65 rows=1 width=12) (actual time=0.969..0.970 rows=1 loops=1)
+        Index Cond: (unit_pk = u.id)
+        Buffers: shared hit=2 read=2
+Planning:
+  Buffers: shared hit=6
+Planning Time: 0.182 ms
+Execution Time: 2.643 ms
+
+=== B. existence check used by gm.check
+Limit  (cost=0.86..3.20 rows=1 width=4) (actual time=1.384..1.385 rows=1 loops=1)
+  Buffers: shared hit=8 read=3
+  ->  Nested Loop  (cost=0.86..7515.50 rows=3218 width=4) (actual time=1.383..1.383 rows=1 loops=1)
+        Buffers: shared hit=8 read=3
+        ->  Index Scan using spatiotemporal_units_2021_cell_pk_timestamp_key on spatiotemporal_units_2021 u  (cost=0.43..2706.90 rows=3218 width=4) (actual time=0.979..0.979 rows=1 loops=1)
+              Index Cond: ((cell_pk = ANY ('{12247841,12160041,12260475,12178215,12179149,18560773,13165637,12195813,12230588,12343633,12347081,12171306,12225361,17781201,18579286,18564874,12156083,18625298,12189994,12188182,18564829,13232378,12229507,12364369,12234702,17796377,18564545,17726279,18552155,18552512,12252705,18552590,12201563,12250732,12249751,18556768,12247842,12137341,18557121,18564871,18551264,12229523,18559247,18560378,18557589,12318415,12255821,12182782,18624835,18557090,13176631,18564795,12203717,12222630,12377257,12251470,12429162,12247846,13165933,18552274,18556847,18564817,18562688,12180953}'::integer[])) AND ("timestamp" = '2021-01-01 00:00:00'::timestamp without time zone))
+              Buffers: shared hit=5 read=2
+        ->  Index Only Scan using obs_landsat_ndvi_pkey on obs_landsat_ndvi o  (cost=0.43..1.49 rows=1 width=4) (actual time=0.402..0.402 rows=1 loops=1)
+              Index Cond: (unit_pk = u.id)
+              Heap Fetches: 0
+              Buffers: shared hit=3 read=1
+Planning:
+  Buffers: shared hit=8 read=1
+Planning Time: 0.403 ms
+Execution Time: 1.399 ms
+
+=== C. descendant aggregation (coarser than native)
+Gather  (cost=1000.87..8852.66 rows=3218 width=8) (actual time=1.050..27.088 rows=31 loops=1)
+  Workers Planned: 1
+  Workers Launched: 1
+  Buffers: shared hit=241 read=136
+  ->  Nested Loop  (cost=0.86..7530.86 rows=1893 width=8) (actual time=1.112..19.251 rows=16 loops=2)
+        Buffers: shared hit=241 read=136
+        ->  Parallel Index Scan using spatiotemporal_units_2021_cell_pk_timestamp_key on spatiotemporal_units_2021 u  (cost=0.43..2693.65 rows=1893 width=4) (actual time=0.605..11.948 rows=16 loops=2)
+              Index Cond: ((cell_pk = ANY ('{12247841,12160041,12260475,12178215,12179149,18560773,13165637,12195813,12230588,12343633,12347081,12171306,12225361,17781201,18579286,18564874,12156083,18625298,12189994,12188182,18564829,13232378,12229507,12364369,12234702,17796377,18564545,17726279,18552155,18552512,12252705,18552590,12201563,12250732,12249751,18556768,12247842,12137341,18557121,18564871,18551264,12229523,18559247,18560378,18557589,12318415,12255821,12182782,18624835,18557090,13176631,18564795,12203717,12222630,12377257,12251470,12429162,12247846,13165933,18552274,18556847,18564817,18562688,12180953}'::integer[])) AND ("timestamp" = '2021-01-01 00:00:00'::timestamp without time zone))
+              Buffers: shared hit=171 read=78
+        ->  Index Scan using obs_landsat_ndvi_pkey on obs_landsat_ndvi o  (cost=0.43..2.56 rows=1 width=12) (actual time=0.455..0.455 rows=1 loops=32)
+              Index Cond: (unit_pk = u.id)
+              Buffers: shared hit=70 read=58
+Planning Time: 0.143 ms
+Execution Time: 27.119 ms
+
+=== D. hourly source at its own level (ERA5, level 8)
+Limit  (cost=1000.44..11832.80 rows=100 width=8) (actual time=307.078..804.258 rows=100 loops=1)
+  Buffers: shared hit=1037 read=29206
+  ->  Gather  (cost=1000.44..46604.69 rows=421 width=8) (actual time=307.077..804.154 rows=100 loops=1)
+        Workers Planned: 4
+        Workers Launched: 4
+        Buffers: shared hit=1037 read=29206
+        ->  Nested Loop  (cost=0.44..45562.59 rows=105 width=8) (actual time=302.586..794.053 rows=75 loops=5)
+              Buffers: shared hit=1037 read=29206
+              ->  Parallel Seq Scan on spatiotemporal_units_2019 u  (cost=0.00..45283.82 rows=105 width=4) (actual time=300.819..735.106 rows=78 loops=5)
+                    Filter: ("timestamp" = '2019-07-15 12:00:00'::timestamp without time zone)
+                    Rows Removed by Filter: 1061605
+                    Buffers: shared hit=233 read=28462
+              ->  Index Scan using obs_era5_land_pkey on obs_era5_land o  (cost=0.44..2.66 rows=1 width=12) (actual time=0.749..0.749 rows=1 loops=390)
+                    Index Cond: (unit_pk = u.id)
+                    Buffers: shared hit=804 read=744
+Planning:
+  Buffers: shared hit=25
+Planning Time: 0.273 ms
+Execution Time: 804.353 ms

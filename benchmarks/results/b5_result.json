@@ -1,0 +1,127 @@
+{
+  "clean": {
+    "seconds": 4.63,
+    "rows": 80000,
+    "files": 40,
+    "checksums": {
+      "cells": {
+        "rows": 80000,
+        "sha256": "0c87e2ba7745f53c"
+      },
+      "hiergp_cells": {
+        "rows": 80000,
+        "sha256": "2477ad07666d078d"
+      },
+      "jobs": {
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c14"
+      },
+      "obs_landsat_ndvi": {
+        "rows": 80000,
+        "sha256": "cb447bb8366a6f1e"
+      },
+      "sources": {
+        "rows": 11,
+        "sha256": "e16f11d0b81cb1dd"
+      },
+      "spatiotemporal_units": {
+        "rows": 80000,
+        "sha256": "bd775065d1b686cf"
+      },
+      "variables": {
+        "rows": 33,
+        "sha256": "0e4ea3abdddf6d90"
+      }
+    }
+  },
+  "killed": {
+    "killed_after_seconds": 3.0,
+    "rows_at_kill": 40000,
+    "checksums": {
+      "cells": {
+        "rows": 40000,
+        "sha256": "902e88ae4450a44f"
+      },
+      "hiergp_cells": {
+        "rows": 40000,
+        "sha256": "1f208d8e15841605"
+      },
+      "jobs": {
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c14"
+      },
+      "obs_landsat_ndvi": {
+        "rows": 40000,
+        "sha256": "c37f755319f4c161"
+      },
+      "sources": {
+        "rows": 11,
+        "sha256": "e16f11d0b81cb1dd"
+      },
+      "spatiotemporal_units": {
+        "rows": 40000,
+        "sha256": "47183f38cf121876"
+      },
+      "variables": {
+        "rows": 33,
+        "sha256": "0e4ea3abdddf6d90"
+      }
+    }
+  },
+  "restart": {
+    "seconds": 4.22,
+    "rows_inserted_on_restart": 40000,
+    "checksums": {
+      "cells": {
+        "rows": 80000,
+        "sha256": "0c87e2ba7745f53c"
+      },
+      "hiergp_cells": {
+        "rows": 80000,
+        "sha256": "2477ad07666d078d"
+      },
+      "jobs": {
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c14"
+      },
+      "obs_landsat_ndvi": {
+        "rows": 80000,
+        "sha256": "cb447bb8366a6f1e"
+      },
+      "sources": {
+        "rows": 11,
+        "sha256": "e16f11d0b81cb1dd"
+      },
+      "spatiotemporal_units": {
+        "rows": 80000,
+        "sha256": "bd775065d1b686cf"
+      },
+      "variables": {
+        "rows": 33,
+        "sha256": "0e4ea3abdddf6d90"
+      }
+    }
+  },
+  "comparison": {
+    "checksums_identical": {
+      "cells": true,
+      "hiergp_cells": true,
+      "jobs": true,
+      "obs_landsat_ndvi": true,
+      "sources": true,
+      "spatiotemporal_units": true,
+      "variables": true
+    },
+    "row_counts_identical": {
+      "cells": true,
+      "hiergp_cells": true,
+      "jobs": true,
+      "obs_landsat_ndvi": true,
+      "sources": true,
+      "spatiotemporal_units": true,
+      "variables": true
+    },
+    "duplicate_rows": 0,
+    "all_identical": true
+  }
+}

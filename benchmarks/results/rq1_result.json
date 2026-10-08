@@ -1,0 +1,18 @@
+{
+  "gee_seconds": 94.2,
+  "ingest_seconds": 2.4,
+  "fetch_seconds": 0.21,
+  "rows_ingested": 98,
+  "elevation_range_m": [
+    715.0,
+    813.0
+  ],
+  "slope_range_deg": [
+    0.9274099368611016,
+    19.57436494534849
+  ],
+  "non_null": 100,
+  "points": 100,
+  "recheck_available": 100,
+  "recheck_missing": 0
+}

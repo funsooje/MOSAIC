@@ -1,0 +1,170 @@
+[
+  {
+    "source": "ERA5_Land",
+    "variable": "temperature_2m",
+    "sampled": 200,
+    "matched_cells": 200,
+    "compared": 194,
+    "fresh_null": 6,
+    "stored_null": 0,
+    "exact_match": 0,
+    "exact_match_pct": 0.0,
+    "within_1pct": 99.48,
+    "mean_abs_diff": 0.154152,
+    "median_abs_diff": 1.5e-05,
+    "max_abs_diff": 4.603524,
+    "correlation": 0.998774,
+    "stored_range": [
+      242.4895,
+      316.7939
+    ],
+    "fresh_range": [
+      242.4895,
+      316.7939
+    ]
+  },
+  {
+    "source": "JRC_Water",
+    "variable": "water_distance",
+    "sampled": 200,
+    "matched_cells": 200,
+    "compared": 200,
+    "fresh_null": 0,
+    "stored_null": 0,
+    "exact_match": 6,
+    "exact_match_pct": 3.0,
+    "within_1pct": 76.29,
+    "mean_abs_diff": 122.02764,
+    "median_abs_diff": 8.6e-05,
+    "max_abs_diff": 10742.732408,
+    "correlation": 0.966246,
+    "stored_range": [
+      0.0,
+      26480.645
+    ],
+    "fresh_range": [
+      0.0,
+      17513.689
+    ]
+  },
+  {
+    "source": "Landsat_NDVI",
+    "variable": "NDVI",
+    "sampled": 200,
+    "matched_cells": 200,
+    "compared": 200,
+    "fresh_null": 0,
+    "stored_null": 0,
+    "exact_match": 0,
+    "exact_match_pct": 0.0,
+    "within_1pct": 1.0,
+    "mean_abs_diff": 0.164033,
+    "median_abs_diff": 0.147475,
+    "max_abs_diff": 0.527527,
+    "correlation": 0.83228,
+    "stored_range": [
+      0.0894,
+      0.9409
+    ],
+    "fresh_range": [
+      -0.0343,
+      0.8799
+    ]
+  },
+  {
+    "source": "MODIS_NDVI",
+    "variable": "NDVI",
+    "sampled": 200,
+    "matched_cells": 200,
+    "compared": 200,
+    "fresh_null": 0,
+    "stored_null": 0,
+    "exact_match": 0,
+    "exact_match_pct": 0.0,
+    "within_1pct": 16.5,
+    "mean_abs_diff": 0.035401,
+    "median_abs_diff": 0.017903,
+    "max_abs_diff": 0.252053,
+    "correlation": 0.946246,
+    "stored_range": [
+      0.0497,
+      0.8764
+    ],
+    "fresh_range": [
+      0.0517,
+      0.885
+    ]
+  },
+  {
+    "source": "MODIS_Treecover",
+    "variable": "percent_tree_cover",
+    "sampled": 200,
+    "matched_cells": 200,
+    "compared": 196,
+    "fresh_null": 4,
+    "stored_null": 0,
+    "exact_match": 25,
+    "exact_match_pct": 12.76,
+    "within_1pct": 10.47,
+    "mean_abs_diff": 4.346939,
+    "median_abs_diff": 2.0,
+    "max_abs_diff": 39.0,
+    "correlation": 0.904122,
+    "stored_range": [
+      0.0,
+      76.0
+    ],
+    "fresh_range": [
+      0.0,
+      81.0
+    ]
+  },
+  {
+    "source": "NLCD",
+    "variable": "impervious",
+    "sampled": 200,
+    "matched_cells": 200,
+    "compared": 200,
+    "fresh_null": 0,
+    "stored_null": 0,
+    "exact_match": 200,
+    "exact_match_pct": 100.0,
+    "within_1pct": 100.0,
+    "mean_abs_diff": 0.0,
+    "median_abs_diff": 0.0,
+    "max_abs_diff": 0.0,
+    "correlation": 1.0,
+    "stored_range": [
+      0.0,
+      100.0
+    ],
+    "fresh_range": [
+      0.0,
+      100.0
+    ]
+  },
+  {
+    "source": "YALE_UHI",
+    "variable": "yearly_daytime",
+    "sampled": 200,
+    "matched_cells": 200,
+    "compared": 187,
+    "fresh_null": 13,
+    "stored_null": 0,
+    "exact_match": 0,
+    "exact_match_pct": 0.0,
+    "within_1pct": 26.2,
+    "mean_abs_diff": 0.302861,
+    "median_abs_diff": 0.168341,
+    "max_abs_diff": 2.817617,
+    "correlation": 0.947192,
+    "stored_range": [
+      -3.6752,
+      5.7125
+    ],
+    "fresh_range": [
+      -4.1294,
+      5.7325
+    ]
+  }
+]

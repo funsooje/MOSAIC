@@ -1,0 +1,21 @@
+{
+  "points": 2500,
+  "sources": [
+    "Landsat_NDVI:NDVI",
+    "MODIS_Treecover:percent_tree_cover"
+  ],
+  "h3_levels": {
+    "ERA5_Land": 6,
+    "Landsat_NDVI": 10,
+    "MODIS_Treecover": 9,
+    "YALE_UHI": 8
+  },
+  "check_seconds": 0.01,
+  "submit_seconds": 18.52,
+  "unique_cells_h3": 3176,
+  "jobs": [
+    1,
+    2
+  ],
+  "folder": "mosaic-b6-h3"
+}
