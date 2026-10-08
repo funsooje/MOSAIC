@@ -350,8 +350,10 @@ def clear_observations(engine: Engine, source_name: str) -> None:
         raise ValueError(f"Source {source_name!r} not found in database.")
 
     table = source_table_name(source_name)
+    # CASCADE is PostgreSQL-only; SQLite rejects it outright.
+    cascade = " CASCADE" if engine.dialect.name == "postgresql" else ""
     with engine.begin() as conn:
-        conn.execute(text(f"DROP TABLE IF EXISTS {table} CASCADE"))
+        conn.execute(text(f"DROP TABLE IF EXISTS {table}{cascade}"))
 
 
 def _make_row(item: dict, value: float | None, aggregated: bool, has_record: bool) -> dict:

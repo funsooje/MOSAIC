@@ -30,5 +30,3 @@ viewer/saved_view.json
 archive/
 examples/
 
-# Demo store is committed only once populated
-demo/geometrics_demo.db

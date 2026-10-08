@@ -445,12 +445,13 @@ class GeoMetrics:
                 return
 
         existing = set(sa_inspect(self.engine).get_table_names())
+        cascade = " CASCADE" if self.engine.dialect.name == "postgresql" else ""
         dropped = []
         with self.engine.begin() as conn:
             for src_name in CATALOG:
                 table = source_table_name(src_name)
                 if table in existing:
-                    conn.execute(text(f"DROP TABLE IF EXISTS {table} CASCADE"))
+                    conn.execute(text(f"DROP TABLE IF EXISTS {table}{cascade}"))
                     dropped.append(table)
         if dropped:
             print(f"Dropped {len(dropped)} observation table(s).")
@@ -560,6 +561,11 @@ class GeoMetrics:
             for src, param in zip(long_df["source"], long_df["parameter"])
         ]
 
+        # pivot_table drops a column whose every value is NULL, which silently
+        # removes a variable the caller asked for (a source with no imagery for
+        # the requested period looks identical to one never requested). Put any
+        # such column back, all-NaN, so the gap is visible.
+        expected_cols = list(dict.fromkeys(long_df["_column"]))
         value_pivot = long_df.pivot_table(
             index=["lat", "lon", "timestamp"],
             columns="_column",
@@ -567,6 +573,9 @@ class GeoMetrics:
             aggfunc="first",
         ).reset_index()
         value_pivot.columns.name = None
+        for column in expected_cols:
+            if column not in value_pivot.columns:
+                value_pivot[column] = float("nan")
 
         merged = value_pivot.merge(record_any, on=["lat", "lon", "timestamp"])
         if not preserve_rows:

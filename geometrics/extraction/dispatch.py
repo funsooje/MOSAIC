@@ -14,6 +14,7 @@ import math
 from geometrics.extraction.era5_land import submit_era5_land
 from geometrics.extraction.modis_ndvi import submit_modis_ndvi
 from geometrics.extraction.ndvi import submit_ndvi
+from geometrics.extraction.srtm import submit_srtm
 from geometrics.extraction.treecover import submit_treecover
 from geometrics.extraction.nlcd import submit_nlcd
 from geometrics.extraction.uhi import submit_uhi
@@ -27,6 +28,7 @@ SUBMITTERS = {
     "JRC_Water": submit_water,
     "YALE_UHI": submit_uhi,
     "NLCD": submit_nlcd,
+    "SRTM_Terrain": submit_srtm,
 }
 
 DEFAULT_BATCH_SIZE = 1000
