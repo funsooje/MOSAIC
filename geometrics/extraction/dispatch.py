@@ -42,7 +42,9 @@ def _date_range(resolved_timestamp: str, temporal_granularity: str) -> tuple[str
         last_day = calendar.monthrange(int(year), int(month))[1]
         return f"{year}-{month}-01", f"{year}-{month}-{last_day:02d}"
     if temporal_granularity == "hour":
-        hour = resolved_timestamp[:13]  # "YYYY-MM-DDTHH"
+        # Stored hourly timestamps are "YYYY-MM-DD HH:00:00"; GEE's ee.Date wants
+        # ISO 8601, and rejects both the space separator and a bare hour.
+        hour = f"{resolved_timestamp[:10]}T{resolved_timestamp[11:13]}:00:00"
         return hour, hour
     day = resolved_timestamp[:10]
     return day, day

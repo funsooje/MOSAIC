@@ -200,6 +200,7 @@ def _load_source_meta(engine: Engine, source_names: list[str]) -> dict[str, dict
 
         unknown = set(unique_names) - {r.name for r in src_rows}
         if unknown:
+            # Local sources are in the DB but not in CATALOG — that is fine.
             unregistered = sorted(unknown & set(CATALOG))
             truly_unknown = sorted(unknown - set(CATALOG))
             parts = []
@@ -209,7 +210,10 @@ def _load_source_meta(engine: Engine, source_names: list[str]) -> dict[str, dict
                     "Run gm.register_sources() to add them to the database."
                 )
             if truly_unknown:
-                parts.append(f"Unknown source(s) (not in catalog): {truly_unknown}.")
+                parts.append(
+                    f"Unknown source(s) (not in catalog and not in database): {truly_unknown}. "
+                    "Run gm.register_local_source() if this is a local source."
+                )
             raise ValueError(" ".join(parts))
 
         src_meta = {r.name: r for r in src_rows}
@@ -239,16 +243,22 @@ def _load_source_meta(engine: Engine, source_names: list[str]) -> dict[str, dict
 
 def _snap_timestamp(timestamp: str, granularity: str) -> str:
     """Truncate a timestamp string to the variable's storage granularity."""
+    if granularity == "static":
+        return "1900-01-01"
     date_part = timestamp[:10]  # YYYY-MM-DD
     year, month, _ = date_part.split("-")
-    if granularity == "year":
+    if granularity in ("year", "annual"):
         return f"{year}-01-01"
     if granularity == "month":
         return f"{year}-{month}-01"
     if granularity == "day":
         return date_part
     if granularity == "hour":
-        return timestamp[:13].replace("T", " ") + ":00:00"  # YYYY-MM-DD HH:00:00
+        # Accepts "YYYY-MM-DD", "YYYY-MM-DDTHH:MM:SS" and "YYYY-MM-DD HH:MM:SS".
+        # A date with no time means midnight; slicing blindly would produce
+        # "YYYY-MM-DD:00:00", which matches nothing in the store.
+        hour = timestamp[11:13] or "00"
+        return f"{date_part} {hour}:00:00"
     raise ValueError(f"Unsupported temporal_granularity: {granularity!r}")
 
 
