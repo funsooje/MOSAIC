@@ -58,17 +58,22 @@ warm-OS. State it that way when citing them.
 
 ## What is deliberately not here
 
-Two inputs are cohort-derived and are not distributed:
+Three cohort-derived files are not distributed:
 
-- `results/case_study_points.csv` — real participant coordinates, timestamped.
+- `results/case_study_points.csv` — real participant coordinates, timestamped to
+  the second. A movement trace re-identifies in a way a pseudonymous id does not.
 - `results/b4_sample.csv` — the 100 m grid cells the fidelity sample drew from,
   which are places participants visited.
+- `results/case_study_summary.csv` — per-participant weekly exposure means. The
+  cohort is a small twin registry, so even aggregate per-participant series carry
+  re-identification risk, and the study commits to releasing no cohort-level
+  location or exposure distributions. Relabelling the ids would not change what
+  the file is.
 
-Both regenerate from the source database with the scripts above, and the
-manifests record their SHA-256 so a rebuild can be verified. Everything else
-here is aggregate, synthetic, or derived from public datasets. The per-participant
-weekly summary (`results/case_study_summary.csv`) carries pseudonymous registry
-ids and exposure values, but no coordinates.
+All three regenerate from the source database with the scripts above, and the
+manifests retain their SHA-256 values so an authorised rebuild can still be
+verified. Everything else here is aggregate across sources, synthetic, or derived
+from public datasets.
 
 ## Running them
 

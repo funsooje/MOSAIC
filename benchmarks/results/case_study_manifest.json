@@ -79,5 +79,7 @@
   "summary_rows": 494,
   "summary_sha256": "4944b48a5f78ff032e6e8e4eb3d501c546480e0d9ac00c9aeb4c83a5ff7f27de",
   "points_file_distributed": false,
-  "points_file_note": "Real participant coordinates, withheld. Regenerate with `case_study.py record` against the GTL source database; the recorded SHA-256 verifies the rebuild."
+  "points_file_note": "Real participant coordinates, withheld. Regenerate with `case_study.py record` against the GTL source database; the recorded SHA-256 verifies the rebuild.",
+  "summary_file_distributed": false,
+  "summary_file_note": "Per-participant weekly exposure series, withheld: the cohort is a small twin registry and the paper commits to releasing no cohort-level location or exposure distributions. The recorded summary_sha256 verifies an authorised rebuild."
 }
