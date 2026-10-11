@@ -1,0 +1,30 @@
+{
+  "arm": "B_mosaic",
+  "raw_points": 25844,
+  "participants": 2,
+  "check_seconds": 38.23,
+  "submit_seconds": 23.08,
+  "missing_items": 51688,
+  "distinct_units_submitted": 10283,
+  "tasks": 3,
+  "batch_size": 5000,
+  "folder": "mosaic-baseline-b",
+  "submitted_at": "2026-10-11T11:47:22",
+  "task_ids": [
+    {
+      "file_prefix": "MODIS_Treecover_batch_001",
+      "task_id": "HDE67XCE6PT2NCBNJSBUHFQG",
+      "row_count": 4402
+    },
+    {
+      "file_prefix": "Landsat_NDVI_batch_002",
+      "task_id": "OCIESA4KBC3JL3T3JRBR5E5P",
+      "row_count": 881
+    },
+    {
+      "file_prefix": "Landsat_NDVI_batch_001",
+      "task_id": "VVLI3Q3YMO6ALN3YRHQPOVN5",
+      "row_count": 5000
+    }
+  ]
+}

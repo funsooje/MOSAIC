@@ -1,0 +1,97 @@
+{
+  "variant": "A1",
+  "raw_points": 25844,
+  "submitted_points": 25821,
+  "batch_size": 5000,
+  "folder": "mosaic-baseline-naive-a2",
+  "tasks": [
+    {
+      "source": "Landsat_NDVI",
+      "task_id": "YNT4N6FDD75ZNZYRPTXZ7NCL",
+      "file_prefix": "naive_A2_Landsat_NDVI_batch_001",
+      "features": 5000,
+      "submit_seconds": 3.52
+    },
+    {
+      "source": "Landsat_NDVI",
+      "task_id": "UVFR5FWUGD5YH5LRTORC6MBW",
+      "file_prefix": "naive_A2_Landsat_NDVI_batch_002",
+      "features": 5000,
+      "submit_seconds": 3.74
+    },
+    {
+      "source": "Landsat_NDVI",
+      "task_id": "M3RFSIG5DO3M2DO4OPV7WZXA",
+      "file_prefix": "naive_A2_Landsat_NDVI_batch_003",
+      "features": 5000,
+      "submit_seconds": 3.44
+    },
+    {
+      "source": "Landsat_NDVI",
+      "task_id": "FJYQB4NN2DNJ5ZPCDORQ5JY4",
+      "file_prefix": "naive_A2_Landsat_NDVI_batch_004",
+      "features": 5000,
+      "submit_seconds": 4.76
+    },
+    {
+      "source": "Landsat_NDVI",
+      "task_id": "5YV4GOAL6BI6CMHWDQATMD3K",
+      "file_prefix": "naive_A2_Landsat_NDVI_batch_005",
+      "features": 5000,
+      "submit_seconds": 7.24
+    },
+    {
+      "source": "Landsat_NDVI",
+      "task_id": "XLXVU5JRDGCTB47EJHVTOD2H",
+      "file_prefix": "naive_A2_Landsat_NDVI_batch_006",
+      "features": 821,
+      "submit_seconds": 0.97
+    },
+    {
+      "source": "MODIS_Treecover",
+      "task_id": "7XLRTUMENPGE2IPVLYXVHFKX",
+      "file_prefix": "naive_A2_MODIS_Treecover_batch_001",
+      "features": 5000,
+      "submit_seconds": 4.51
+    },
+    {
+      "source": "MODIS_Treecover",
+      "task_id": "72KBXIYWN3VA7GUVAYIB4NVF",
+      "file_prefix": "naive_A2_MODIS_Treecover_batch_002",
+      "features": 5000,
+      "submit_seconds": 3.7
+    },
+    {
+      "source": "MODIS_Treecover",
+      "task_id": "4TNZCF7CC74YMRV4ML3M6QEG",
+      "file_prefix": "naive_A2_MODIS_Treecover_batch_003",
+      "features": 5000,
+      "submit_seconds": 4.26
+    },
+    {
+      "source": "MODIS_Treecover",
+      "task_id": "653FOTQ7MOKIXUZV5ARCYPYQ",
+      "file_prefix": "naive_A2_MODIS_Treecover_batch_004",
+      "features": 5000,
+      "submit_seconds": 4.09
+    },
+    {
+      "source": "MODIS_Treecover",
+      "task_id": "TG4VWEXX6XSV55YC55QIYK2X",
+      "file_prefix": "naive_A2_MODIS_Treecover_batch_005",
+      "features": 5000,
+      "submit_seconds": 4.78
+    },
+    {
+      "source": "MODIS_Treecover",
+      "task_id": "YRVKWV2BUGOBCGDMMCWRCUCW",
+      "file_prefix": "naive_A2_MODIS_Treecover_batch_006",
+      "features": 821,
+      "submit_seconds": 1.35
+    }
+  ],
+  "submitted_at": "2026-10-11T11:43:54",
+  "total_features": 51642,
+  "total_tasks": 12,
+  "note": "This is the A1 arm (every raw point). It was submitted while mislabelled A2, so its Drive folder is mosaic-baseline-naive-a2 and its files are named naive_A2_*. The names are left as submitted so the record matches what exists. Cause: the first A2 dedup key was (coordinate, timestamp), which removes almost nothing because timestamps are unique per second; the correct key is (coordinate, extraction window)."
+}

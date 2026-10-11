@@ -1,0 +1,47 @@
+{
+  "B_ingest_seconds": 5.65,
+  "B_rows_ingested": 10283,
+  "B_fetch_seconds": 52.14,
+  "B_repeat_check_seconds": 53.62,
+  "B_repeat_missing": 0,
+  "B_repeat_available": 51688,
+  "B_repeat_platform_features": 0,
+  "A1_rows_returned": {
+    "Landsat_NDVI": 25821,
+    "MODIS_Treecover": 25821
+  },
+  "A2_rows_returned": {
+    "Landsat_NDVI": 15263,
+    "MODIS_Treecover": 15263
+  },
+  "fidelity_point_vs_cell": {
+    "Landsat_NDVI": {
+      "points_compared": 25821,
+      "identical": 4202,
+      "mean_abs_diff": 0.094576,
+      "median_abs_diff": 0.059495,
+      "p95_abs_diff": 0.280919,
+      "max_abs_diff": 0.618372,
+      "mean_rel_diff_pct": 48.405,
+      "correlation": 0.765882,
+      "naive_range": [
+        -0.0322,
+        0.9029
+      ]
+    },
+    "MODIS_Treecover": {
+      "points_compared": 25540,
+      "identical": 10744,
+      "mean_abs_diff": 4.624471,
+      "median_abs_diff": 4.0,
+      "p95_abs_diff": 12.0,
+      "max_abs_diff": 44.0,
+      "mean_rel_diff_pct": 21.216,
+      "correlation": 0.861139,
+      "naive_range": [
+        0.0,
+        71.0
+      ]
+    }
+  }
+}

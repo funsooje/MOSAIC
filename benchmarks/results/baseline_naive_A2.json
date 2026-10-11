@@ -1,0 +1,68 @@
+{
+  "variant": "A2",
+  "raw_points": 25844,
+  "submitted_points": 15263,
+  "batch_size": 5000,
+  "folder": "mosaic-baseline-naive-a2fair",
+  "tasks": [
+    {
+      "source": "Landsat_NDVI",
+      "task_id": "7VIZIX4KNXNECX7FZUL6UY3E",
+      "file_prefix": "naive_A2_Landsat_NDVI_batch_001",
+      "features": 5000,
+      "submit_seconds": 3.6
+    },
+    {
+      "source": "Landsat_NDVI",
+      "task_id": "HSVCYWRW2HYNXMZ6UFMKZRWD",
+      "file_prefix": "naive_A2_Landsat_NDVI_batch_002",
+      "features": 5000,
+      "submit_seconds": 4.27
+    },
+    {
+      "source": "Landsat_NDVI",
+      "task_id": "LUEHCO2URB3WPA7FTDOI5GOR",
+      "file_prefix": "naive_A2_Landsat_NDVI_batch_003",
+      "features": 5000,
+      "submit_seconds": 3.87
+    },
+    {
+      "source": "Landsat_NDVI",
+      "task_id": "NLAZSEKZGRR3P7TIT52HRCNR",
+      "file_prefix": "naive_A2_Landsat_NDVI_batch_004",
+      "features": 263,
+      "submit_seconds": 0.55
+    },
+    {
+      "source": "MODIS_Treecover",
+      "task_id": "SON4TZNPUEBDRU3Y2GCPZJ5B",
+      "file_prefix": "naive_A2_MODIS_Treecover_batch_001",
+      "features": 5000,
+      "submit_seconds": 5.86
+    },
+    {
+      "source": "MODIS_Treecover",
+      "task_id": "RVOBSEF4C66VOMCBDAANZIEC",
+      "file_prefix": "naive_A2_MODIS_Treecover_batch_002",
+      "features": 5000,
+      "submit_seconds": 5.86
+    },
+    {
+      "source": "MODIS_Treecover",
+      "task_id": "HYAPEGSAIYEH4EEGPTKF772Y",
+      "file_prefix": "naive_A2_MODIS_Treecover_batch_003",
+      "features": 5000,
+      "submit_seconds": 3.92
+    },
+    {
+      "source": "MODIS_Treecover",
+      "task_id": "6YDJU7K7WCAE5CTN3FZIC5X3",
+      "file_prefix": "naive_A2_MODIS_Treecover_batch_004",
+      "features": 263,
+      "submit_seconds": 0.86
+    }
+  ],
+  "submitted_at": "2026-10-11T11:45:31",
+  "total_features": 30526,
+  "total_tasks": 8
+}

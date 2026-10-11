@@ -36,6 +36,31 @@ warm-OS. State it that way when citing them.
 | `b5_recovery.py` | Kill an ingest at 50%, restart, compare row counts and per-table checksums against a clean run | `results/b5_result.json` |
 | `b6_submit.py` / `b6_compare.py` | Portability: the same workload under H3 at mapped resolutions | `results/b6_*.json` |
 | `rq1_finish.py` | End-to-end timing for onboarding a new source | `results/rq1_result.json` |
+| `k_anonymity.py` | k-anonymity per released (cell, time bin) unit, counting people and counting twin pairs | `results/k_anonymity.csv` |
+| `baseline_naive.py` | The naive arm: extract at every raw point, no store, no partitioning | `results/baseline_naive_A*.json` |
+
+## The naive-pipeline baseline
+
+Three arms over the same workload (2 participants, June 2019, Landsat NDVI and
+MODIS Treecover, identical batch size of 5,000):
+
+- **A1**, literal naive: one extraction per raw point, 25,821 points.
+- **A2**, fair naive: one per distinct (coordinate, extraction window), 15,263
+  points — the one line of deduplication any competent script writes.
+- **B**, MOSAIC: check, submit, ingest, fetch, which deduplicates to grid
+  partitions.
+
+Read A2 as the baseline, not A1: the literal arm costs 1.69x more for work a
+competent script would not do, and quoting it would overstate the method.
+
+Two measurements that matter more than the headline:
+
+- The feature-count ratio **overstates** the platform saving. A2/B is 2.97x in
+  features but only 2.05x in platform compute, because per-feature compute cost
+  rises as a task's feature count falls.
+- Queue time is **not comparable across arms here**: the arms were submitted in
+  sequence, so each waited behind its predecessors (A1's first task queued for
+  2s, B's for 4,481s). Use compute time, not wall-clock.
 
 ## Caveats worth carrying into any write-up
 
