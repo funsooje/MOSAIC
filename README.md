@@ -1,8 +1,17 @@
-# GeoMetrics
+# MOSAIC
 
 A multi-resolution environmental data store backed by Google Earth Engine (GEE), with a built-in map viewer for exploration.
 
-GeoMetrics solves a common research problem: you have a list of field sites and dates, and you need environmental covariates — vegetation indices, land cover, climate, water proximity — for each one. Pulling that data manually from different sources is slow and produces inconsistent spatial representations. GeoMetrics automates the full pipeline: it snaps your locations to a consistent spatial grid, checks what you already have in the database, submits missing extractions to GEE as batch jobs, ingests the results, and serves them back as a clean DataFrame.
+This is the reference implementation accompanying the MOSAIC paper. The release
+evaluated in that paper is tagged `v0.2.0`; measurement scripts and their raw
+results are under [`benchmarks/`](benchmarks/).
+
+> **Package name.** The installable Python package and its entry-point class are
+> still `geometrics` and `GeoMetrics`. Only the project is named MOSAIC; the
+> import path was left alone so that the evaluated tree, its tags and its
+> recorded benchmark artifacts continue to match what was measured.
+
+MOSAIC solves a common research problem: you have a list of field sites and dates, and you need environmental covariates — vegetation indices, land cover, climate, water proximity — for each one. Pulling that data manually from different sources is slow and produces inconsistent spatial representations. MOSAIC automates the full pipeline: it snaps your locations to a consistent spatial grid, checks what you already have in the database, submits missing extractions to GEE as batch jobs, ingests the results, and serves them back as a clean DataFrame.
 
 ---
 
@@ -208,7 +217,7 @@ df = gm.fetch("locations.csv", variables=[...],
 
 ## Map viewer
 
-GeoMetrics ships a browser-based map viewer for exploring what's in the database.
+MOSAIC ships a browser-based map viewer for exploring what's in the database.
 
 ```bash
 python viewer/server.py
