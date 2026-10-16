@@ -18,6 +18,33 @@ kilometres conversion the load applies.
 
 Output is plain: per source, per year-range, matched / mismatched / origin-only
 / store-only.
+
+Two scope limits of this check:
+
+  - It covers the eight time-varying sources. Parks_Distance and Walkability
+    were migrated through a DISTINCT ON de-duplication rather than a
+    row-per-row join, so they need a differently shaped comparison and are not
+    included here.
+  - One variable per source is compared. That proves the source's rows landed
+    on the right partitions; it does not separately prove the other columns of
+    a multi-variable row did. A column-level transposition inside a correctly
+    placed row would be invisible to this check.
+
+A TRAP, and the reason this script casts to real before hashing. A first
+version hashed round(value::numeric, 6) on both sides. That reported five of
+eight sources as mismatched in every year, and it was wrong: PostgreSQL
+converts float4 to numeric via the value's shortest text form and float8 via
+its full binary expansion, so the same underlying value can round differently
+in the sixth decimal. The store's columns are double precision holding widened
+float4 values, so casting both sides back to real recovers the original bit
+pattern and the texts agree.
+
+The giveaway was the SHAPE of the failure: it sorted by value type — integer
+and short-decimal sources clean, many-significant-digit sources dirty in every
+year — rather than by source or by year. A fault in the data respects the
+data's organisation; a fault in the comparison respects the comparison's. If
+this check ever reports a mismatch, look at how the failures group before
+believing them.
 """
 
 from __future__ import annotations
