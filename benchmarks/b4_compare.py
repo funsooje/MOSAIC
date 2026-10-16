@@ -47,8 +47,15 @@ for source, group in sample.groupby("source"):
 
     both = merged.dropna(subset=["stored_value", "fresh_value"])
     diff = (both["fresh_value"] - both["stored_value"]).abs()
+    # Relative difference is undefined where the stored value is 0. Dropping
+    # those rows from the denominator made "within 1%" computable over a
+    # smaller set than "exact", which produced the impossible result of a
+    # within-tolerance rate BELOW the exact-match rate. An exact pair is within
+    # any tolerance, including 0 == 0, so count it as such and keep one
+    # denominator for both columns.
     denom = both["stored_value"].abs().replace(0, np.nan)
-    rel = (diff / denom).dropna()
+    rel = (diff / denom)
+    within_1pct = ((diff == 0) | (rel <= 0.01))
 
     rows.append({
         "source": source, "variable": variable,
@@ -57,7 +64,7 @@ for source, group in sample.groupby("source"):
         "stored_null": int(merged["stored_value"].isna().sum()),
         "exact_match": int((diff == 0).sum()),
         "exact_match_pct": round(100 * (diff == 0).mean(), 2) if len(both) else None,
-        "within_1pct": round(100 * (rel <= 0.01).mean(), 2) if len(rel) else None,
+        "within_1pct": round(100 * within_1pct.mean(), 2) if len(both) else None,
         "mean_abs_diff": round(float(diff.mean()), 6) if len(both) else None,
         "median_abs_diff": round(float(diff.median()), 6) if len(both) else None,
         "max_abs_diff": round(float(diff.max()), 6) if len(both) else None,

@@ -1,0 +1,8 @@
+         source           variable  compared  stored_zero  exact  exact_pct_over_compared  within1_denominator  within1_pct_as_published  within1_pct_over_compared  zero_stored_that_are_exact
+           NLCD         impervious       200           38    200                   100.00                  162                    100.00                     100.00                          38
+      ERA5_Land     temperature_2m       194            0      0                     0.00                  194                     99.48                      99.48                           0
+      JRC_Water     water_distance       200            6      6                     3.00                  194                     76.29                      77.00                           6
+     MODIS_NDVI               NDVI       200            0      0                     0.00                  200                     16.50                      16.50                           0
+       YALE_UHI     yearly_daytime       187            0      0                     0.00                  187                     26.20                      26.20                           0
+MODIS_Treecover percent_tree_cover       196            5     25                    12.76                  191                     10.47                      12.76                           5
+   Landsat_NDVI               NDVI       200            0      0                     0.00                  200                      1.00                       1.00                           0
