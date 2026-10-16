@@ -22,6 +22,10 @@ FINAL = S / "b4_sample.csv"
 URL = json.load(open(os.path.expanduser('~/.geometrics/config.json')))['db_url']
 engine = create_engine(URL)
 
+# PostgreSQL's random() is seedable per session via setseed, so the draw is
+# reproducible. The original sample was drawn before this was added and is NOT
+# reproducible; b4_sample.csv is the record of it.
+SEED = 0.20261008
 YEARS = [2013, 2016, 2019, 2022]
 PER_STRATUM = 25
 POOL = 400
@@ -41,6 +45,8 @@ STRATIFIED_BY_WALKABILITY = {s for s in SOURCES if s != "ERA5_Land"}
 def q(sql, **kw):
     with engine.connect() as c:
         c.execute(text("set max_parallel_workers_per_gather=0"))
+        # Seed inside the same session as the query, or random() is unseeded.
+        c.execute(text("SELECT setseed(:seed)"), {"seed": SEED})
         return pd.DataFrame(c.execute(text(sql), kw).mappings().all())
 
 
@@ -99,7 +105,7 @@ for source, (table, var, granularity) in SOURCES.items():
                 continue
 
         sel = sel.assign(source=source, variable=var,
-                         temporal_granularity=granularity, year=year)
+                         temporal_granularity=granularity, year=year, seed=SEED)
         sel["timestamp"] = sel["timestamp"].astype(str)
         append(sel)
         urban_n = int(sel["urban"].fillna(False).sum())
