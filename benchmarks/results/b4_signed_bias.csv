@@ -1,0 +1,8 @@
+source,variable,compared,mean_signed_diff,std_signed_diff,median_abs_diff,mean_abs_diff,max_abs_diff,systematic_fraction,negative_share_pct
+NLCD,impervious,200,0.0,0.0,0.0,0.0,0.0,,0.0
+ERA5_Land,temperature_2m,194,-0.040744,0.483675,1.5e-05,0.154152,4.603524,0.2643,51.5
+JRC_Water,water_distance,200,-54.407237,853.343674,8.6e-05,122.02764,10742.732408,0.4459,47.5
+MODIS_NDVI,NDVI,200,0.001014,0.05561,0.017903,0.035401,0.252053,0.0286,49.0
+YALE_UHI,yearly_daytime,187,-0.047003,0.497962,0.168341,0.302861,2.817617,0.1552,52.4
+MODIS_Treecover,percent_tree_cover,196,0.520408,7.195055,2.0,4.346939,39.0,0.1197,44.9
+Landsat_NDVI,NDVI,200,-0.154769,0.125314,0.147475,0.164033,0.527527,0.9435,92.0

@@ -1,0 +1,86 @@
+[
+  {
+    "source": "NLCD",
+    "variable": "impervious",
+    "compared": 200,
+    "mean_signed_diff": 0.0,
+    "std_signed_diff": 0.0,
+    "median_abs_diff": 0.0,
+    "mean_abs_diff": 0.0,
+    "max_abs_diff": 0.0,
+    "systematic_fraction": null,
+    "negative_share_pct": 0.0
+  },
+  {
+    "source": "ERA5_Land",
+    "variable": "temperature_2m",
+    "compared": 194,
+    "mean_signed_diff": -0.040744,
+    "std_signed_diff": 0.483675,
+    "median_abs_diff": 1.5e-05,
+    "mean_abs_diff": 0.154152,
+    "max_abs_diff": 4.603524,
+    "systematic_fraction": 0.2643,
+    "negative_share_pct": 51.5
+  },
+  {
+    "source": "JRC_Water",
+    "variable": "water_distance",
+    "compared": 200,
+    "mean_signed_diff": -54.407237,
+    "std_signed_diff": 853.343674,
+    "median_abs_diff": 8.6e-05,
+    "mean_abs_diff": 122.02764,
+    "max_abs_diff": 10742.732408,
+    "systematic_fraction": 0.4459,
+    "negative_share_pct": 47.5
+  },
+  {
+    "source": "MODIS_NDVI",
+    "variable": "NDVI",
+    "compared": 200,
+    "mean_signed_diff": 0.001014,
+    "std_signed_diff": 0.05561,
+    "median_abs_diff": 0.017903,
+    "mean_abs_diff": 0.035401,
+    "max_abs_diff": 0.252053,
+    "systematic_fraction": 0.0286,
+    "negative_share_pct": 49.0
+  },
+  {
+    "source": "YALE_UHI",
+    "variable": "yearly_daytime",
+    "compared": 187,
+    "mean_signed_diff": -0.047003,
+    "std_signed_diff": 0.497962,
+    "median_abs_diff": 0.168341,
+    "mean_abs_diff": 0.302861,
+    "max_abs_diff": 2.817617,
+    "systematic_fraction": 0.1552,
+    "negative_share_pct": 52.4
+  },
+  {
+    "source": "MODIS_Treecover",
+    "variable": "percent_tree_cover",
+    "compared": 196,
+    "mean_signed_diff": 0.520408,
+    "std_signed_diff": 7.195055,
+    "median_abs_diff": 2.0,
+    "mean_abs_diff": 4.346939,
+    "max_abs_diff": 39.0,
+    "systematic_fraction": 0.1197,
+    "negative_share_pct": 44.9
+  },
+  {
+    "source": "Landsat_NDVI",
+    "variable": "NDVI",
+    "compared": 200,
+    "mean_signed_diff": -0.154769,
+    "std_signed_diff": 0.125314,
+    "median_abs_diff": 0.147475,
+    "mean_abs_diff": 0.164033,
+    "max_abs_diff": 0.527527,
+    "systematic_fraction": 0.9435,
+    "negative_share_pct": 92.0
+  }
+]
